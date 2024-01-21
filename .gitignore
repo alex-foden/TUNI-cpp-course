@@ -1,5 +1,6 @@
 build*
-*.pro*
+*.pro
+*.pro.user
 templates/*
 examples/*
 *.o
