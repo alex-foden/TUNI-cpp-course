@@ -62,11 +62,7 @@ int main()
         return EXIT_FAILURE;
     }
 
-    if (is_lower_case(text) == false)
-    {
-        cout << "Error! The text to be encrypted must contain only lower case characters." << endl;
-        return EXIT_FAILURE;
-    }
+
 
     if (contains_all_alphabets(key) == false)
     {
@@ -77,6 +73,12 @@ int main()
     cout << "Enter the text to be encrypted: ";
     string text = "";
     getline(cin, text);
+
+    if (is_lower_case(text) == false)
+    {
+        cout << "Error! The text to be encrypted must contain only lower case characters." << endl;
+        return EXIT_FAILURE;
+    }
 
     string encrypted_text = encrypt(text, key);
 
