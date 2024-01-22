@@ -40,18 +40,18 @@ int main()
     if (lottery_balls <= 0 or drawn_balls <= 0)
     {
         cout << "The number of balls must be a positive number." << endl;
-        return EXIT_FAILURE;
+        return EXIT_SUCCESS;
     }
 
     if (drawn_balls > lottery_balls)
     {
         cout << "The maximum number of drawn balls is the total amount of balls." << endl;
-        return EXIT_FAILURE;
+        return EXIT_SUCCESS;
     }
 
     unsigned long int chances = calculate_chances(lottery_balls, drawn_balls);
 
-    cout << "The probability of guessing all " << drawn_balls << " is 1/" << chances << endl;
+    cout << "The probability of guessing all " << drawn_balls << " balls is 1/" << chances << endl;
 
     return EXIT_SUCCESS;
 }
