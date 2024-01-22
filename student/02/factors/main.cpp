@@ -12,7 +12,7 @@ int main()
 
     if (number <= 0)
     {
-        cout << "Only positive numbers accepted" << endl;
+        cout << "Only positive numbers accepted." << endl;
         return EXIT_FAILURE;
     }
 
