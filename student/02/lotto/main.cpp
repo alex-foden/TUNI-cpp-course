@@ -51,7 +51,7 @@ int main()
 
     unsigned long int chances = calculate_chances(lottery_balls, drawn_balls);
 
-    cout << "The probability of guessing all " << drawn_balls << " balls is 1/" << chances << endl;
+    cout << "The probability of guessing all " << drawn_balls << " balls correctly is 1/" << chances << endl;
 
     return EXIT_SUCCESS;
 }
