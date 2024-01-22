@@ -20,10 +20,10 @@ int main()
     int temperature = 0;
     cin >> temperature;
 
-    cout << temperature << " degress Celsius is "
+    cout << temperature << " degrees Celsius is "
          << fahrenheiter(temperature) << " degrees Fahrenheit" << endl;
 
-    cout << temperature << " degress Fahrenheit is "
+    cout << temperature << " degrees Fahrenheit is "
          << celsiuser(temperature) << " degrees Celsius" << endl;
 
 
