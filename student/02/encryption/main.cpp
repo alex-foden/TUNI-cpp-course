@@ -62,6 +62,12 @@ int main()
         return EXIT_FAILURE;
     }
 
+    if (is_lower_case(text) == false)
+    {
+        cout << "Error! The text to be encrypted must contain only lower case characters." << endl;
+        return EXIT_FAILURE;
+    }
+
     if (contains_all_alphabets(key) == false)
     {
         cout << "Error! The encryption key must contain all alphabets a-z." << endl;
