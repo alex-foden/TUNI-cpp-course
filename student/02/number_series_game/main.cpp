@@ -9,7 +9,10 @@ int main()
 
     for (int i = 1; i <= number; i++)
     {
-        std::cout << i << std::endl;
+        if (i % 3 == 0) {std::cout << "zip" << std::endl;}
+
+        else {std::cout << i << std::endl;}
+
     }
 
     return EXIT_SUCCESS;
