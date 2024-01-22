@@ -12,8 +12,8 @@ int main()
 
     if (number <= 0)
     {
-        cout << "Only positive numbers accepted." << endl;
-        return EXIT_FAILURE;
+        cout << "Only positive numbers accepted" << endl;
+        return 0;
     }
 
     for (int factor1 = 1; factor1 * factor1 <= number; factor1++)
