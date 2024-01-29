@@ -8,7 +8,7 @@ using namespace std;
 // If we knew containers, we could use one to store accounts in it,
 // and print the content of the container.
 // In this way, we could print any number of accounts.
-void print_three_accounts(const Account& a1, const Account& a2, const Account& a3)
+void print_three_accounts(Account& a1, Account& a2, Account& a3)
 {
     cout << endl;
     cout << "Printing all three accounts:" << endl;
