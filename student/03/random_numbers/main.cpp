@@ -20,6 +20,7 @@ void produce_random_numbers(unsigned int lower, unsigned int upper, unsigned int
         {
             break;
         }
+        cout << endl;
     }
 }
 
