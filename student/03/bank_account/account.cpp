@@ -50,7 +50,7 @@ void Account::take_money(const int money_taken)
 
     else
     {
-        if (balance_ - money_taken < credit_limit_ * -1)
+        if ((balance_ - money_taken) < (credit_limit_ * -1))
         {
             std::cout << "Cannot take money: credit limit underflow" << std::endl;
         }
@@ -86,7 +86,7 @@ void Account::transfer_to(Account& transfer_receiver, int money_transferred)
 
     else
     {
-        if (balance_ - money_transferred < credit_limit_ * -1)
+        if ((balance_ - money_transferred) < (credit_limit_ * -1))
         {
             std::cout << "Cannot take money: credit limit underflow" << std::endl;
             std::cout << "Transfer from " << iban_ << " failed" << std::endl;

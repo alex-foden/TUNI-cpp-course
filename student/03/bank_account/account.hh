@@ -31,7 +31,7 @@ private:
     // More attributes/methods
     const std::string owner_;
     bool has_credit_;
-    int credit_limit_;
+    int credit_limit_ = 0;
     int balance_;
     std::string iban_;
 };
