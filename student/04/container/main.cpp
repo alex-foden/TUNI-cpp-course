@@ -69,6 +69,11 @@ bool is_arithmetic_series(std::vector< int >& ints)
 
 bool is_geometric_series(std::vector< int >& ints)
 {
+    if(ints.at(0) == 0)
+    {
+        return false;
+    }
+
     if(ints.at(1) % ints.at(0) != 0)
     {
         return false;
