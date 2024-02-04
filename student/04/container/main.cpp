@@ -19,11 +19,82 @@ void read_integers(std::vector< int >& ints, int count)
     int new_integer = 0;
     for(int i = 0; i < count; ++i) {
         std::cin >> new_integer;
-        // TODO: Implement your solution here
+        ints.push_back(new_integer);
     }
 }
 
-// TODO: Implement your solution here
+bool same_values(std::vector< int >& ints)
+{
+    int first_integer = ints.at(0);
+    for(auto elem : ints)
+    {
+        if(elem != first_integer)
+        {
+                return false;
+        }
+    }
+
+    return true;
+}
+
+bool is_ordered_non_strict_ascending(std::vector< int >& ints)
+{
+    std::vector<int>::size_type size = ints.size();
+    for(uint i = 1; i < size; i++)
+    {
+        if(ints.at(i) < ints.at(i - 1))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool is_arithmetic_series(std::vector< int >& ints)
+{
+    std::vector<int>::size_type size = ints.size();
+    int difference = ints.at(1) - ints.at(0);
+
+    for(uint i = 1; i < size; i++)
+    {
+        if(ints.at(i) - ints.at(i - 1) != difference)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool is_geometric_series(std::vector< int >& ints)
+{
+    if(ints.at(1) % ints.at(0) != 0)
+    {
+        return false;
+    }
+
+    std::vector<int>::size_type size = ints.size();
+    int difference = ints.at(1) / ints.at(0);
+
+    for(uint i = 1; i < size; i++)
+    {
+        if(ints.at(i) / ints.at(i - 1) != difference)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void triple_integers(std::vector< int >& ints)
+{
+    for(int& elem : ints)
+    {
+        elem *= 3;
+    }
+}
 
 
 int main()
