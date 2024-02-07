@@ -1,3 +1,10 @@
+//Ohjelman kirjoittaja
+//Nimi: Alex Foden
+//Opiskelijanumero: 152492647
+//Käyttäjätunnus: cxm844
+//E-Mail: alex.foden@tuni.fi
+
+
 #include "gameboard.hh"
 #include <iostream>
 #include <random>
@@ -10,11 +17,9 @@ GameBoard::GameBoard()
 void GameBoard::print() const
 {
     // Tulostetaan yläreuna
-    // Printing upper border
     print_line(LEFT_COLUMN_WIDTH + 1 + 2 * SIZE + 1, '=');
 
     // Tulostetaan otsikkorivi
-    // Printing title row
     std::cout << "|   | ";
     for(unsigned int i = 0; i < SIZE; ++i)
     {
@@ -23,11 +28,9 @@ void GameBoard::print() const
     std::cout << "|" << std::endl;
 
     // Tulostetaan viiva otsikkorivin alle
-    // Printing line after the title row
     print_line(LEFT_COLUMN_WIDTH + 1 + 2 * SIZE + 1, '-');
 
     // Tulostetaan pelilaudan varsinainen sisältö
-    // Printing the actual content of the gameboard
     for(unsigned int i = 0; i < SIZE; ++i)
     {
         std::cout << "| " << i + 1 << " | ";
@@ -35,14 +38,12 @@ void GameBoard::print() const
         {
 
             // TODO: Tulosta pelilaudan alkio (i, j)
-            // TODO: Print the gameboard element (i, j)
 
         }
         std::cout << "|" << std::endl;
     }
 
     // Tulostetaan alareuna
-    // Printing lower border
     print_line(LEFT_COLUMN_WIDTH + 1 + 2 * SIZE + 1, '=');
 }
 
