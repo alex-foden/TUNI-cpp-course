@@ -13,12 +13,12 @@
 
 GameBoard::GameBoard():
     board({
-        {"0", " ", " ", " ", " ", " "},
-        {" ", "0", " ", " ", " ", " "},
-        {" ", " ", "0", " ", " ", " "},
-        {" ", " ", " ", "0", " ", " "},
-        {" ", " ", " ", " ", "0", " "},
-        {" ", " ", " ", " ", " ", "0"} }){
+        {" ", " ", " ", " ", " ", " "},
+        {" ", " ", " ", " ", " ", " "},
+        {" ", " ", " ", " ", " ", " "},
+        {" ", " ", " ", " ", " ", " "},
+        {" ", " ", " ", " ", " ", " "},
+        {" ", " ", " ", " ", " ", " "} }){
 }
 
 void GameBoard::print() const
@@ -50,6 +50,49 @@ void GameBoard::print() const
 
     // Tulostetaan alareuna
     print_line(LEFT_COLUMN_WIDTH + 1 + 2 * SIZE + 1, '=');
+}
+
+void GameBoard::randomize_board(const int seed)
+{
+
+    std::default_random_engine gen(seed);
+    std::uniform_int_distribution<int> distr(0, DISTR_UPPER_BOUND);
+
+    for(unsigned int row = 0; row < SIZE; ++row)
+    {
+        for(unsigned int column = 0; column < SIZE; ++column)
+        {
+            int symbol = distr(gen);
+
+            if(symbol == ZERO)
+            {
+                board[row][column] = "0";
+            }
+
+            if(symbol == ONE)
+            {
+                board[row][column] = "1";
+            }
+
+            // jos distr(gen) == väliltä 2-7: jätä ruutu tyhjäksi.
+            // näin ruudulla on 3/4 mahdollisuus olla tyhjä, joka
+            // minimizoi mahdottoman aloitustilan tapahtumista.
+        }
+    }
+}
+
+void GameBoard::set_board(const std::vector<char> input)
+{
+    int symbol = 0; // merkitsee mitä ruutua luetaan inputista/täytetään pelilautaan
+
+    for(unsigned int row = 0; row < SIZE; ++row)
+    {
+        for(unsigned int column = 0; column < SIZE; ++column)
+        {
+            board[row][column] = input[symbol];
+            symbol++;
+        }
+    }
 }
 
 bool GameBoard::is_game_over()

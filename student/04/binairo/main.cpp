@@ -43,6 +43,9 @@ const string QUIT = "Quitting ...";
 const string OUT_OF_BOARD = "Out of board";
 const string INVALID_INPUT = "Invalid input";
 const string CANT_ADD = "Can't add";
+const string BAD_SEED = "Bad seed";
+const string WRONG_SIZE_OF_INPUT = "Wrong size of input";
+const string WRONG_CHARACTER = "Wrong character";
 const string WIN = "You won!";
 
 // Muuttaa numeerisen merkkijonon vastaavaksi kokonaisluvuksi
@@ -85,6 +88,20 @@ bool find_fill_symbol(string& str)
     str = fill_str;
     return (fill_str.size() == 1 and
            (fill_str.at(0) == '0' or fill_str.at(0) == '1'));
+}
+
+// Tarkistaa onko pelilaudan alustavassa manuaalisessa inputissa oikeat merkit (0/1/" ")
+bool check_input_for_set_board(const string input)
+{
+    for(unsigned int character = 0; character < input.size(); ++character)
+    {
+        // TODO: käytä enum Element_type
+        if(input[character] != ("0" or "1" or " "))
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 // Mahdollistaa pelin pelaamisen eli kysyy toistuvasti lisättävää merkkiä
@@ -148,7 +165,6 @@ void play_game(GameBoard& board)
 // muuten palauttaa epätoden.
 bool select_start(GameBoard& board)
 {
-    board.print();
     string choice = "";
     cout << "Select start (R for random, I for input): ";
     getline(cin, choice);
@@ -163,7 +179,19 @@ bool select_start(GameBoard& board)
         cout << "Enter a seed value: ";
         getline(cin, seed_string);
 
-        // TODO: Täytä pelilauta ja palauta tieto täytön onnistumisesta
+        unsigned int seed = stoi(seed_string);
+
+        // Palauta epätosi ja mene takaisin funktion alkuun jos on huono siemenluku
+        for(unsigned int i = 0; i < board.BAD_SEEDS.size(); ++i)
+        {
+            if(seed == board.BAD_SEEDS[i])
+            {
+                cout << BAD_SEED << endl;
+                return false;
+            }
+        }
+
+        board.randomize_board(seed);
     }
 
     else // if(choice == "I" or choice == "i")
@@ -172,8 +200,27 @@ bool select_start(GameBoard& board)
         cout << "Input: ";
         getline(cin, input);
 
-        // (Huomaa, että tässä vaiheessa input sisältää vielä lainausmerkit tms.)
-        // TODO: Täytä pelilauta ja palauta tieto täytön onnistumisesta
+        // Palauta epätosi ja mene takaisin funktion alkuun jos input ei ole 6*6 + 2 merkkiä pitkä
+        if(input.size() != 38)
+        {
+            cout << WRONG_SIZE_OF_INPUT << endl;
+            return false;
+        }
+
+        // Palauta epätosi ja mene takaisin funktion alkuun jos inputissa on väärä merkki
+        if(check_input_for_set_board(input) == false)
+        {
+            cout << WRONG_CHARACTER << endl;
+            return false;
+        }
+
+        vector<char> input_to_vector;
+        for(unsigned int character = 1; character < input.length() - 1; ++character)
+        {
+            input_to_vector.push_back(input[character]);
+        }
+
+        board.set_board(input_to_vector);
     }
 
 
