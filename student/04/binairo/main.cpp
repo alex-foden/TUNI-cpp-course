@@ -32,6 +32,8 @@
 
 #include "gameboard.hh"
 #include <iostream>
+#include <vector>
+#include <random>
 
 using namespace std;
 
@@ -146,6 +148,7 @@ void play_game(GameBoard& board)
 // muuten palauttaa epätoden.
 bool select_start(GameBoard& board)
 {
+    board.print();
     string choice = "";
     cout << "Select start (R for random, I for input): ";
     getline(cin, choice);
@@ -153,6 +156,7 @@ bool select_start(GameBoard& board)
     {
         return false;
     }
+
     else if(choice == "R" or choice == "r")
     {
         string seed_string = "";
@@ -161,6 +165,7 @@ bool select_start(GameBoard& board)
 
         // TODO: Täytä pelilauta ja palauta tieto täytön onnistumisesta
     }
+
     else // if(choice == "I" or choice == "i")
     {
         string input = "";
@@ -170,6 +175,9 @@ bool select_start(GameBoard& board)
         // (Huomaa, että tässä vaiheessa input sisältää vielä lainausmerkit tms.)
         // TODO: Täytä pelilauta ja palauta tieto täytön onnistumisesta
     }
+
+
+    return true;
 }
 
 // Lyhyt ja yksinkertainen pääohjelma.

@@ -37,6 +37,12 @@ public:
     // Tulostaa pelilaudan.
     void print() const;
 
+    // Tarkistaa onko pelilauta täynnä numeroita.
+    bool is_game_over();
+
+    // 6x6 tyhjä pelilauta.
+    std::vector<std::vector<std::string>> board;
+
 private:
     // Tulostaa annetun pituisen rivin annettua merkkiä.
     void print_line(unsigned int length, char fill_character) const;
