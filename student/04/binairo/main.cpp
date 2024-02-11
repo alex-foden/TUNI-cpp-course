@@ -108,7 +108,6 @@ bool check_input_for_set_board(const vector<char>& input)
 // ja sen sijaintia, kunnes peli päättyy.
 void play_game(GameBoard& board)
 {
-    board.print();
     while(not board.is_game_over())
     {
         string x_str = "";
@@ -155,7 +154,6 @@ void play_game(GameBoard& board)
         if(board.fill_gridspace_with_check(x, y, input) == false)
         {
             cout << CANT_ADD << endl;
-            board.print();
             continue;
         }
 
@@ -230,9 +228,11 @@ bool select_start(GameBoard& board)
 
         // Täytä alustettu pelilauta vector inputilla
         board.set_board(input_vector);
+
+
     }
 
-
+    board.print();
     return true;
 }
 
