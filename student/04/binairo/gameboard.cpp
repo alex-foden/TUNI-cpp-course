@@ -139,7 +139,60 @@ bool GameBoard::fill_gridspace_with_check(int x, int y, const char input)
             board[y][x] = ' ';
             return false;
         }
-        // TODO: tarkista että merkin sijainti noudattaa sääntöjä
+
+
+        char previous = ' '; // apumuuttuja. viittaa rivin/sarakkeen "edelliseen" ruutuun
+        int consecutiveCount = 1; // Määrä samoja merkkejä putkeen rivillä/sarakkeella
+
+        // Käydään läpi rivin jokainen ruutu ja lasketaan, kuinka monta samaa merkkiä (0/1)
+        // esiintyy putkeen. Jos määrä on yli 2, tyhjennä valittu ruutu ja palauta epätosi
+        for(char element: row)
+        {
+            if(element != ' ')
+            {
+                if(element == previous)
+                {
+                    consecutiveCount++;
+                    if(consecutiveCount > 2)
+                    {
+                        board[y][x] = ' ';
+                        return false;
+                    }
+                }
+                else
+                {
+                    consecutiveCount = 1;
+                }
+            }
+            previous = element;
+        }
+
+        previous = ' ';
+        consecutiveCount = 1;
+
+        // Käydään läpi sarakkeen jokainen ruutu ja lasketaan, kuinka monta samaa merkkiä (0/1)
+        // esiintyy putkeen. Jos määrä on yli 2, tyhjennä valittu ruutu ja palauta epätosi
+        for(char element: column)
+        {
+            if(element != ' ')
+            {
+                if(element == previous)
+                {
+                    consecutiveCount++;
+                    if(consecutiveCount > 2)
+                    {
+                        board[y][x] = ' ';
+                        return false;
+                    }
+                }
+                else
+                {
+                    consecutiveCount = 1;
+                }
+            }
+            previous = element;
+        }
+
     }
 
     // Tässä vaiheessa merkki on läpäissyt kaikki testit, eli sen sijainti on validi. Palauta tosi.
