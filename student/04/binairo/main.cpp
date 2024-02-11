@@ -87,16 +87,17 @@ bool find_fill_symbol(string& str)
     }
     str = fill_str;
     return (fill_str.size() == 1 and
-           (fill_str.at(0) == '0' or fill_str.at(0) == '1'));
+           (fill_str.at(0) == map(ZERO) or fill_str.at(0) == map(ONE)));
 }
 
 // Tarkistaa onko pelilaudan alustavassa manuaalisessa inputissa oikeat merkit (0/1/' ')
+// Parametri input on 36 char pitkä vector, jossa jokainen char viittaa ruutuun pelilaudassa
+// Palauttaa totta, jos input sisältää vain ('0'/'1'/' '), muuten false
 bool check_input_for_set_board(const vector<char>& input)
 {
     for(char c: input)
     {
-        // TODO: käytä enmun Element_Type
-        if(c != '0' and c != '1' and c != ' ')
+        if(c != map(ZERO) and c != map(ONE) and c != map(EMPTY))
         {
             return false;
         }
@@ -187,9 +188,9 @@ bool select_start(GameBoard& board)
         unsigned int seed = stoi(seed_string);
 
         // Palauta epätosi ja mene takaisin funktion alkuun jos on huono siemenluku
-        for(unsigned int i = 0; i < board.BAD_SEEDS.size(); ++i)
+        for(unsigned int bad_seed : board.BAD_SEEDS)
         {
-            if(seed == board.BAD_SEEDS[i])
+            if(seed == bad_seed)
             {
                 cout << BAD_SEED << endl;
                 return false;
@@ -213,7 +214,7 @@ bool select_start(GameBoard& board)
         }
 
         // Palauta epätosi ja mene takaisin funktion alkuun jos vector input ei ole 6*6 merkkiä pitkä
-        if(input_vector.size() != 36)
+        if(input_vector.size() != SIZE * SIZE)
         {
             cout << WRONG_SIZE_OF_INPUT << endl;
             return false;
@@ -228,11 +229,10 @@ bool select_start(GameBoard& board)
 
         // Täytä alustettu pelilauta vector inputilla
         board.set_board(input_vector);
-
-
     }
-
+    // Tulosta pelilauta jotta pelaaja tietää laudan tilanteen pelin alussa
     board.print();
+
     return true;
 }
 

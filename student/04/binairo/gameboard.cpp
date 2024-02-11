@@ -14,6 +14,17 @@
 
 using namespace std;
 
+// Parametri ELEMENT tulee enumeraattorista enum Element_type
+// Palauttaa pelilaudan merkin
+char map(const int ELEMENT)
+{
+    if(ELEMENT == ZERO) { return '0'; }
+    if(ELEMENT == ONE) { return '1'; }
+    if(ELEMENT == EMPTY) { return ' '; }
+
+    return 0;
+}
+
 
 GameBoard::GameBoard():
     // Tyhjä pelilauta´
@@ -60,28 +71,28 @@ void GameBoard::print() const
 void GameBoard::randomize_board(const int seed)
 {
     default_random_engine gen(seed);
-    uniform_int_distribution<int> distr(0, DISTR_UPPER_BOUND);
+    uniform_int_distribution<int> distr(DISTR_LOWER_BOUND, DISTR_UPPER_BOUND);
 
-    // Alustaa pelilaudan lisäämällä jokaiseen ruutuun satunnaisesti valittu merkki
+    // Alustaa pelilaudan lisäämällä jokaiseen ruutuun satunnaisesti valitun merkki
     for(unsigned int row = 0; row < SIZE; ++row)
     {
         for(unsigned int column = 0; column < SIZE; ++column)
         {
             int symbol = distr(gen);
-            // TODO: käyttä enum Element_Type paremmin
+
             if(symbol == ZERO)
             {
-                board[row][column] = '0';
+                board[row][column] = map(ZERO);
             }
 
             if(symbol == ONE)
             {
-                board[row][column] = '1';
+                board[row][column] = map(ONE);
             }
 
-            // jos distr(gen) == väliltä 2-7: jätä ruutu tyhjäksi.
+            // jos distr(gen) == väliltä 2-7: jätä ruutu tyhjäksi (älä tee mitään).
             // näin ruudulla on 3/4 mahdollisuus olla tyhjä, joka
-            // minimizoi mahdottoman aloitustilan tapahtumista.
+            // minimisoi mahdottoman aloitustilan tapahtumista.
         }
     }
 }
@@ -90,7 +101,7 @@ void GameBoard::set_board(const vector<char> input)
 {
     int symbol = 0; // merkitsee mitä ruutua luetaan inputista/täytetään pelilautaan
 
-    // Alustaa pelilaudan lisäämällää jokaiseen ruutuun saman kohdan merkki inputista
+    // Alustaa pelilaudan lisäämällää jokaiseen ruutuun inputista luetun merkin
     for(unsigned int row = 0; row < SIZE; ++row)
     {
         for(unsigned int column = 0; column < SIZE; ++column)
@@ -114,11 +125,11 @@ bool GameBoard::fill_gridspace_with_check(int x, int y, const char input)
     vector<char> column;
 
     // Jos merkin haluttu sijainti ei ole tyhjä, palauta epätosi.
-    if(board[y][x] != ' ') {return false;}
+    if(board[y][x] != map(EMPTY)) {return false;}
 
     else // Ruutu on tyhjä
     {
-        // Lisää merkki ruutuun valmiiksi testausta varten.
+        // Lisää merkki ruutuun valmiiksi testaamista varten.
         board[y][x] = input;
 
         for(unsigned int i = 0; i < SIZE; ++i)
@@ -127,35 +138,35 @@ bool GameBoard::fill_gridspace_with_check(int x, int y, const char input)
             column.push_back(board[i][x]);
         }
 
-        // Lasketaan jokaisen merkin määrä rivillä ja sarakkeella
-        zeroes_in_row = count(row.begin(), row.end(), '0');
-        ones_in_row = count(row.begin(), row.end(), '1');
-        zeroes_in_column = count(column.begin(), column.end(), '0');
-        ones_in_column = count(column.begin(), column.end(), '1');
+        // Lasketaan jokaisen merkin määrä rivillä (1..6, y) ja sarakkeella (x, 1..6)
+        zeroes_in_row = count(row.begin(), row.end(), map(ZERO));
+        ones_in_row = count(row.begin(), row.end(), map(ONE));
+        zeroes_in_column = count(column.begin(), column.end(), map(ZERO));
+        ones_in_column = count(column.begin(), column.end(), map(ONE));
 
         // Tyhjennä ruutu ja palauta epätosi, jos rivillä tai sarakkeella on yli 3 samaa merkkiä.
         if(zeroes_in_row > 3 or ones_in_row > 3 or zeroes_in_column > 3 or ones_in_column > 3)
         {
-            board[y][x] = ' ';
+            board[y][x] = map(EMPTY);
             return false;
         }
 
-
-        char previous = ' '; // apumuuttuja. viittaa rivin/sarakkeen "edelliseen" ruutuun
+        // Alustetaan tarvittavat apumuuttujat ja käydään rivi läpi
+        char previous = map(EMPTY); // Apumuuttuja, joka viittaa rivin/sarakkeen edelliseen ruutuun
         int consecutiveCount = 1; // Määrä samoja merkkejä putkeen rivillä/sarakkeella
 
-        // Käydään läpi rivin jokainen ruutu ja lasketaan, kuinka monta samaa merkkiä (0/1)
-        // esiintyy putkeen. Jos määrä on yli 2, tyhjennä valittu ruutu ja palauta epätosi
+        // Käydään läpi rivin jokainen ruutu ja lasketaan, kuinka monta samaa merkkiä ('0'/'1')
+        // esiintyy putkeen. Jos määrä on yli 2, tyhjennä valittu ruutu (x, y) ja palauta epätosi
         for(char element: row)
         {
-            if(element != ' ')
+            if(element != map(EMPTY)) // Tyhjiä merkkejä (' ') voi esiintyä monta putkeen.
             {
                 if(element == previous)
                 {
                     consecutiveCount++;
                     if(consecutiveCount > 2)
                     {
-                        board[y][x] = ' ';
+                        board[y][x] = map(EMPTY);
                         return false;
                     }
                 }
@@ -167,21 +178,22 @@ bool GameBoard::fill_gridspace_with_check(int x, int y, const char input)
             previous = element;
         }
 
-        previous = ' ';
+        // Resetoidan samat muuttujat ja käydään sarake läpi
+        previous = map(EMPTY);
         consecutiveCount = 1;
 
         // Käydään läpi sarakkeen jokainen ruutu ja lasketaan, kuinka monta samaa merkkiä (0/1)
-        // esiintyy putkeen. Jos määrä on yli 2, tyhjennä valittu ruutu ja palauta epätosi
+        // esiintyy putkeen. Jos määrä on yli 2, tyhjennä valittu ruutu (x, y) ja palauta epätosi
         for(char element: column)
         {
-            if(element != ' ')
+            if(element != map(EMPTY))
             {
                 if(element == previous)
                 {
                     consecutiveCount++;
                     if(consecutiveCount > 2)
                     {
-                        board[y][x] = ' ';
+                        board[y][x] = map(EMPTY);
                         return false;
                     }
                 }
@@ -195,7 +207,8 @@ bool GameBoard::fill_gridspace_with_check(int x, int y, const char input)
 
     }
 
-    // Tässä vaiheessa merkki on läpäissyt kaikki testit, eli sen sijainti on validi. Palauta tosi.
+    // Tässä vaiheessa merkki on läpäissyt kaikki testit, eli sen sijainti noudattaa  sääntöjä.
+    // Palauta tosi.
     return true;
 }
 
@@ -206,7 +219,7 @@ bool GameBoard::is_game_over()
     {
         for(unsigned int column = 0; column < SIZE; ++column)
         {
-            if(board[row][column] == ' ')
+            if(board[row][column] == map(EMPTY))
             {
                 return false;
             }
