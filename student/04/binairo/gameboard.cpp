@@ -1,3 +1,9 @@
+// tiedostossa käsitellään
+// Pelilauta luokka ja pelilaudan luominen
+// pelilaudan alustus manuaalisesti tai satunnaisesti
+// merkin lisääminen pelilaudan ruutuun ja sääntöjen mukainen tarkistus
+// muuta virhetilanteiden käsittelyä
+
 //Ohjelman kirjoittaja
 //Nimi: Alex Foden
 //Opiskelijanumero: 152492647

@@ -27,8 +27,15 @@
  * Käyttäjätunnus: cxm844
  * E-Mail: alex.foden@tuni.fi
  *
- * */
+ *
+ */
 
+// tiedostossa käsitellään:
+// käyttäjän input ja inputin tarkistus
+// virheiden käsittely ja tulostus
+// käyttöliittymä ja muut tulosteet
+// kutsutaan pelilauta luokan metodeja ja atribuutteja
+// pääohjelma hoitaa pelin aloituksen, jatkon ja lopetuksen
 
 #include "gameboard.hh"
 #include <iostream>

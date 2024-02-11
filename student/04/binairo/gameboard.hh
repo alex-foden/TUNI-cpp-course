@@ -1,3 +1,10 @@
+// tiedostossa käsitellään:
+// globaalien muuttujien luonti, kuten:
+// enum Element_type, joka sisältää pelilaudan merkit
+// pelilaudan koko sekä muita hyödyllisiä muuttujia pelilaudan metodeille
+//
+// tiedostossa myös alustetaan kaikki pelilauta luokan metodit ja attribuutit
+
 //Ohjelman kirjoittaja
 //Nimi: Alex Foden
 //Opiskelijanumero: 152492647
