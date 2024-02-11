@@ -95,6 +95,7 @@ bool check_input_for_set_board(const vector<char>& input)
 {
     for(char c: input)
     {
+        // TODO: käytä enmun Element_Type
         if(c != '0' and c != '1' and c != ' ')
         {
             return false;
@@ -151,7 +152,7 @@ void play_game(GameBoard& board)
 
         // Tarkistaa että merkin voi lisätä pelilaudan x ja y koordinaatteihin sääntöjen mukaisesti.
         // Jos tosi, lisää merkin pelilautaan/jos epätosi, ei lisää ja tulostaa tiedon käyttäjälle.
-        if(board.fill_gridspace(x, y, input) == false)
+        if(board.fill_gridspace_with_check(x, y, input) == false)
         {
             cout << CANT_ADD << endl;
             board.print();
@@ -196,7 +197,6 @@ bool select_start(GameBoard& board)
                 return false;
             }
         }
-
         // Täytä alustettu pelilauta satunnaisesti valituilla merkeillä
         board.randomize_board(seed);
     }

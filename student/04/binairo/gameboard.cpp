@@ -16,6 +16,7 @@ using namespace std;
 
 
 GameBoard::GameBoard():
+    // Tyhjä pelilauta´
     board({
         {' ', ' ', ' ', ' ', ' ', ' '},
         {' ', ' ', ' ', ' ', ' ', ' '},
@@ -61,6 +62,7 @@ void GameBoard::randomize_board(const int seed)
     default_random_engine gen(seed);
     uniform_int_distribution<int> distr(0, DISTR_UPPER_BOUND);
 
+    // Alustaa pelilaudan lisäämällä jokaiseen ruutuun satunnaisesti valittu merkki
     for(unsigned int row = 0; row < SIZE; ++row)
     {
         for(unsigned int column = 0; column < SIZE; ++column)
@@ -88,6 +90,7 @@ void GameBoard::set_board(const vector<char> input)
 {
     int symbol = 0; // merkitsee mitä ruutua luetaan inputista/täytetään pelilautaan
 
+    // Alustaa pelilaudan lisäämällää jokaiseen ruutuun saman kohdan merkki inputista
     for(unsigned int row = 0; row < SIZE; ++row)
     {
         for(unsigned int column = 0; column < SIZE; ++column)
@@ -98,22 +101,48 @@ void GameBoard::set_board(const vector<char> input)
     }
 }
 
-bool GameBoard::fill_gridspace(int x, int y, const char input)
+bool GameBoard::fill_gridspace_with_check(int x, int y, const char input)
 {
     x -= 1; // Vektorin indeksi alkaa 0:sta
     y -= 1;
+    int zeroes_in_row = 0;
+    int ones_in_row = 0;
+    int zeroes_in_column = 0;
+    int ones_in_column = 0;
 
     vector<char> row;
     vector<char> column;
 
+    // Jos merkin haluttu sijainti ei ole tyhjä, palauta epätosi.
     if(board[y][x] != ' ') {return false;}
 
     else // Ruutu on tyhjä
     {
+        // Lisää merkki ruutuun valmiiksi testausta varten.
         board[y][x] = input;
 
+        for(unsigned int i = 0; i < SIZE; ++i)
+        {
+            row.push_back(board[y][i]);
+            column.push_back(board[i][x]);
+        }
+
+        // Lasketaan jokaisen merkin määrä rivillä ja sarakkeella
+        zeroes_in_row = count(row.begin(), row.end(), '0');
+        ones_in_row = count(row.begin(), row.end(), '1');
+        zeroes_in_column = count(column.begin(), column.end(), '0');
+        ones_in_column = count(column.begin(), column.end(), '1');
+
+        // Tyhjennä ruutu ja palauta epätosi, jos rivillä tai sarakkeella on yli 3 samaa merkkiä.
+        if(zeroes_in_row > 3 or ones_in_row > 3 or zeroes_in_column > 3 or ones_in_column > 3)
+        {
+            board[y][x] = ' ';
+            return false;
+        }
         // TODO: tarkista että merkin sijainti noudattaa sääntöjä
     }
+
+    // Tässä vaiheessa merkki on läpäissyt kaikki testit, eli sen sijainti on validi. Palauta tosi.
     return true;
 }
 

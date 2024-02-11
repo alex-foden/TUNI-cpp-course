@@ -48,10 +48,11 @@ public:
     void set_board(const std::vector<char> input);
 
     // Tarkistaa että annettu merkki voi lisätä annettuun kohtaan kun 1. Ruutu on tyhjä.
+    // 2. Rivillä tai sarakkeella ei ole jo 3 samaa merkkiä.
     // Lopuksi lisää valittuun ruutuun annetun merkin
-    // TODO: lisää tarkistukset 2. Rivillä tai sarakkeella ei ole jo 3 samaa merkkiä.
+    // TODO: lisää tarkistus
     // 3. Rivillä tai sarakkeella ei ole yli 2 samaa merkkiä putkeen.
-    bool fill_gridspace(const int x, const int y, const char input);
+    bool fill_gridspace_with_check(const int x, const int y, const char input);
 
     // Tarkistaa onko pelilauta täynnä numeroita (peli on silloin ohi).
     bool is_game_over();
