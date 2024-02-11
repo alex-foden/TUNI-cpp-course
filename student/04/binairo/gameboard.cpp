@@ -6,19 +6,23 @@
 
 
 #include "gameboard.hh"
+#include <string>
 #include <iostream>
 #include <random>
-#include <string>
 #include <vector>
+#include <algorithm>
+
+using namespace std;
+
 
 GameBoard::GameBoard():
     board({
-        {" ", " ", " ", " ", " ", " "},
-        {" ", " ", " ", " ", " ", " "},
-        {" ", " ", " ", " ", " ", " "},
-        {" ", " ", " ", " ", " ", " "},
-        {" ", " ", " ", " ", " ", " "},
-        {" ", " ", " ", " ", " ", " "} }){
+        {' ', ' ', ' ', ' ', ' ', ' '},
+        {' ', ' ', ' ', ' ', ' ', ' '},
+        {' ', ' ', ' ', ' ', ' ', ' '},
+        {' ', ' ', ' ', ' ', ' ', ' '},
+        {' ', ' ', ' ', ' ', ' ', ' '},
+        {' ', ' ', ' ', ' ', ' ', ' '}, }){
 }
 
 void GameBoard::print() const
@@ -27,12 +31,12 @@ void GameBoard::print() const
     print_line(LEFT_COLUMN_WIDTH + 1 + 2 * SIZE + 1, '=');
 
     // Tulostetaan otsikkorivi
-    std::cout << "|   | ";
+    cout << "|   | ";
     for(unsigned int i = 0; i < SIZE; ++i)
     {
-        std::cout << i + 1 << " ";
+        cout << i + 1 << " ";
     }
-    std::cout << "|" << std::endl;
+    cout << "|" << endl;
 
     // Tulostetaan viiva otsikkorivin alle
     print_line(LEFT_COLUMN_WIDTH + 1 + 2 * SIZE + 1, '-');
@@ -40,12 +44,12 @@ void GameBoard::print() const
     // Tulostetaan pelilaudan varsinainen sisältö
     for(unsigned int row = 0; row < SIZE; ++row)
     {
-        std::cout << "| " << row + 1 << " | ";
+        cout << "| " << row + 1 << " | ";
         for(unsigned int column = 0; column < SIZE; ++column)
         {
-            std::cout << board[row][column] << " ";
+            cout << board[row][column] << " ";
         }
-        std::cout << "|" << std::endl;
+        cout << "|" << endl;
     }
 
     // Tulostetaan alareuna
@@ -54,24 +58,23 @@ void GameBoard::print() const
 
 void GameBoard::randomize_board(const int seed)
 {
-
-    std::default_random_engine gen(seed);
-    std::uniform_int_distribution<int> distr(0, DISTR_UPPER_BOUND);
+    default_random_engine gen(seed);
+    uniform_int_distribution<int> distr(0, DISTR_UPPER_BOUND);
 
     for(unsigned int row = 0; row < SIZE; ++row)
     {
         for(unsigned int column = 0; column < SIZE; ++column)
         {
             int symbol = distr(gen);
-
+            // TODO: käyttä enum Element_Type paremmin
             if(symbol == ZERO)
             {
-                board[row][column] = "0";
+                board[row][column] = '0';
             }
 
             if(symbol == ONE)
             {
-                board[row][column] = "1";
+                board[row][column] = '1';
             }
 
             // jos distr(gen) == väliltä 2-7: jätä ruutu tyhjäksi.
@@ -81,7 +84,7 @@ void GameBoard::randomize_board(const int seed)
     }
 }
 
-void GameBoard::set_board(const std::vector<char> input)
+void GameBoard::set_board(const vector<char> input)
 {
     int symbol = 0; // merkitsee mitä ruutua luetaan inputista/täytetään pelilautaan
 
@@ -95,6 +98,25 @@ void GameBoard::set_board(const std::vector<char> input)
     }
 }
 
+bool GameBoard::fill_gridspace(int x, int y, const char input)
+{
+    x -= 1; // Vektorin indeksi alkaa 0:sta
+    y -= 1;
+
+    vector<char> row;
+    vector<char> column;
+
+    if(board[y][x] != ' ') {return false;}
+
+    else // Ruutu on tyhjä
+    {
+        board[y][x] = input;
+
+        // TODO: tarkista että merkin sijainti noudattaa sääntöjä
+    }
+    return true;
+}
+
 bool GameBoard::is_game_over()
 {
     // Jos mikään ruutu on tyhjä, peli ei ole ohi.
@@ -102,7 +124,7 @@ bool GameBoard::is_game_over()
     {
         for(unsigned int column = 0; column < SIZE; ++column)
         {
-            if(board[row][column] == " ")
+            if(board[row][column] == ' ')
             {
                 return false;
             }
@@ -116,7 +138,7 @@ void GameBoard::print_line(unsigned int length, char fill_character) const
 {
     for(unsigned int i = 0; i < length; ++i)
     {
-        std::cout << fill_character;
+        cout << fill_character;
     }
-    std::cout << std::endl;
+    cout << endl;
 }

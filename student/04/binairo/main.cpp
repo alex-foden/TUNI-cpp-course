@@ -90,13 +90,12 @@ bool find_fill_symbol(string& str)
            (fill_str.at(0) == '0' or fill_str.at(0) == '1'));
 }
 
-// Tarkistaa onko pelilaudan alustavassa manuaalisessa inputissa oikeat merkit (0/1/" ")
-bool check_input_for_set_board(const string input)
+// Tarkistaa onko pelilaudan alustavassa manuaalisessa inputissa oikeat merkit (0/1/' ')
+bool check_input_for_set_board(const vector<char>& input)
 {
-    for(unsigned int character = 0; character < input.size(); ++character)
+    for(char c: input)
     {
-        // TODO: käytä enum Element_type
-        if(input[character] != ("0" or "1" or " "))
+        if(c != '0' and c != '1' and c != ' ')
         {
             return false;
         }
@@ -148,9 +147,16 @@ void play_game(GameBoard& board)
             continue;
         }
 
-        // Tässä kohdassa tiedetään, että syöte oli hyväksyttävä, mutta ei
-        // ole varmaa, voidaanko annettu merkki lisätä annettuun kohtaan
-        // TODO: Lisää tämä tarkistus
+        char input = rest_input[0]; // Muuttaa täyttömerkin char alkioksi
+
+        // Tarkistaa että merkin voi lisätä pelilaudan x ja y koordinaatteihin sääntöjen mukaisesti.
+        // Jos tosi, lisää merkin pelilautaan/jos epätosi, ei lisää ja tulostaa tiedon käyttäjälle.
+        if(board.fill_gridspace(x, y, input) == false)
+        {
+            cout << CANT_ADD << endl;
+            board.print();
+            continue;
+        }
 
 
         // Jos annettu merkki voitiin lisätä, tulostetaan muuttunut pelilauta
@@ -191,6 +197,7 @@ bool select_start(GameBoard& board)
             }
         }
 
+        // Täytä alustettu pelilauta satunnaisesti valituilla merkeillä
         board.randomize_board(seed);
     }
 
@@ -199,28 +206,30 @@ bool select_start(GameBoard& board)
         string input = "";
         cout << "Input: ";
         getline(cin, input);
+        vector<char> input_vector;
 
-        // Palauta epätosi ja mene takaisin funktion alkuun jos input ei ole 6*6 + 2 merkkiä pitkä
-        if(input.size() != 38)
+        // Lisää vector inputtiin täyttömerkit ilman alku- ja loppumerkkejä (")
+        for(unsigned int character = 1; character < input.size() - 1; ++character)
+        {
+            input_vector.push_back(input[character]);
+        }
+
+        // Palauta epätosi ja mene takaisin funktion alkuun jos vector input ei ole 6*6 merkkiä pitkä
+        if(input_vector.size() != 36)
         {
             cout << WRONG_SIZE_OF_INPUT << endl;
             return false;
         }
 
         // Palauta epätosi ja mene takaisin funktion alkuun jos inputissa on väärä merkki
-        if(check_input_for_set_board(input) == false)
+        if(check_input_for_set_board(input_vector) == false)
         {
             cout << WRONG_CHARACTER << endl;
             return false;
         }
 
-        vector<char> input_to_vector;
-        for(unsigned int character = 1; character < input.length() - 1; ++character)
-        {
-            input_to_vector.push_back(input[character]);
-        }
-
-        board.set_board(input_to_vector);
+        // Täytä alustettu pelilauta vector inputilla
+        board.set_board(input_vector);
     }
 
 
