@@ -31,7 +31,6 @@ int main()
     cin >> output_file;
 
     ifstream input(input_file);
-    ofstream output(output_file);
 
     if(not input)
     {
@@ -39,6 +38,7 @@ int main()
         return EXIT_FAILURE;
     }
 
+    ofstream output(output_file);
     read_write_to_file(input, output);
 
     return EXIT_SUCCESS;
