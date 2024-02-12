@@ -14,6 +14,9 @@ void read_write_to_file(ifstream& input, ofstream& output)
         output << row_number << " " << row << endl;
         row_number++;
     }
+
+    input.close();
+    output.close();
 }
 
 
