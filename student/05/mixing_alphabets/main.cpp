@@ -12,6 +12,8 @@ int main()
     std::cout << "Enter some text. Quit by entering the word \"END\"." << std::endl;
     std::string word;
 
+
+
     while (std::cin >> word)
     {
         if (word == "END")
@@ -19,7 +21,13 @@ int main()
             return EXIT_SUCCESS;
         }
 
-        // TODO: implement your solution here
+        if(word.size() <= 3)
+        {
+            std::cout << word << std::endl;
+            continue;
+        }
+
+        std::shuffle(++word.begin(), --word.end(), generator);
 	
         std::cout << word << std::endl;
     }
