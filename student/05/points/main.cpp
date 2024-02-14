@@ -58,7 +58,7 @@ int main()
 
     for(pair<string, int> student_info : students)
     {
-        cout << student_info.first << " : " << student_info.second << endl;
+        cout << student_info.first << ": " << student_info.second << endl;
     }
 
 
