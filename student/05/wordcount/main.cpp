@@ -43,6 +43,7 @@ int main()
             if(find(row_check.begin(), row_check.end(), word) == row_check.end())
             {
                 wordcount[word].push_back(row_number);
+                row_check.push_back(word);
             }
 
         }
