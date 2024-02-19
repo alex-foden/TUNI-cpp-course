@@ -20,7 +20,7 @@ bool palindrome_recursive(std::string s)
 
     s = s.substr(1, s.size() - 2);
 
-    palindrome_recursive(s);
+    return palindrome_recursive(s);
 }
 
 
