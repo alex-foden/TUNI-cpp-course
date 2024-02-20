@@ -8,11 +8,16 @@ using namespace std;
 void print_vertical(unsigned int num)
 {
     RECURSIVE_FUNC
-    // Do not remove RECURSIVE_FUNC declaration, it's necessary for automatic testing to work
-    // ------------
 
+    if(num <= 9)
+    {
+        cout << num << endl;
+        return;
+    }
 
-    // Add your implementation here
+    print_vertical(num/10);
+
+    cout << num % 10 << endl;
 }
 
 // Do not modify rest of the code, or the automated testing won't work.
