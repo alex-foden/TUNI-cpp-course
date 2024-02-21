@@ -2,6 +2,10 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <map>
+#include <algorithm>
+
+using Network = std::map<std::string, std::vector<std::string>>;
 
 const std::string HELP_TEXT = "S = store id1 i2\nP = print id\n"
                               "C = count id\nD = depth id\n";
@@ -30,9 +34,59 @@ std::vector<std::string> split(const std::string& s,
     return result;
 }
 
+void store(Network& network, std::string& parent, std::string& child)
+{
+    if(network.find(parent) == network.end())
+    {
+        network[parent] = {};
+    }
+
+    if(find(network.at(parent).begin(), network.at(parent).end(), child) != network.at(parent).end())
+    {
+        return;
+    }
+
+    network[parent].push_back(child);
+}
+
+void print(const Network& network, std::string& id, int indent = 0)
+{
+    for(int i = 0; i <= indent; i++)
+    {
+        std::cout << "..";
+    }
+
+    std::cout << id << std::endl;
+
+    if(network.find(id) != network.end())
+    {
+        for(std::string child : network.at(id))
+        {
+            print(network, child, indent + 1);
+        }
+    }
+}
+
+int count(Network& network, std::string& id)
+{
+    int size = 0;
+
+    if(network.find(id) != network.end())
+    {
+        for(std::string child : network.at(id))
+        {
+            ++size;
+            size += count(network, child);
+        }
+    }
+
+    return size;
+}
+
+
 int main()
 {
-    // TODO: Implement the datastructure here
+    Network network;
 
 
     while(true)
@@ -60,7 +114,7 @@ int main()
             std::string id1 = parts.at(1);
             std::string id2 = parts.at(2);
 
-            // TODO: Implement the command here!
+            store(network, id1, id2);
 
         }
         else if(command == "P" or command == "p")
@@ -72,7 +126,7 @@ int main()
             }
             std::string id = parts.at(1);
 
-            // TODO: Implement the command here!
+            print(network, id);
 
         }
         else if(command == "C" or command == "c")
@@ -84,7 +138,7 @@ int main()
             }
             std::string id = parts.at(1);
 
-            // TODO: Implement the command here!
+            std::cout << count(network, id) << std::endl;
 
         }
         else if(command == "D" or command == "d")
@@ -95,8 +149,6 @@ int main()
                 continue;
             }
             std::string id = parts.at(1);
-
-            // TODO: Implement the command here!
 
         }
         else if(command == "Q" or command == "q")
