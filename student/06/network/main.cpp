@@ -83,6 +83,23 @@ int count(Network& network, std::string& id)
     return size;
 }
 
+int depth(Network& network, std::string& id, int max_depth = 0, int current_depth = 0)
+{
+    current_depth++;
+
+    if(network.find(id) != network.end())
+    {
+        for(std::string child : network.at(id))
+        {
+            if(current_depth > max_depth)
+            {
+                max_depth = depth(network, child, max_depth, current_depth);
+            }
+        }
+    }
+
+    return max_depth + 1;
+}
 
 int main()
 {
@@ -149,6 +166,8 @@ int main()
                 continue;
             }
             std::string id = parts.at(1);
+
+            std::cout << depth(network, id) << std::endl;
 
         }
         else if(command == "Q" or command == "q")
