@@ -93,6 +93,7 @@ int depth(Network& network, std::string& id, int max_depth = 0, int current_dept
         {
             if(current_depth > max_depth)
             {
+                current_depth--;
                 max_depth = depth(network, child, max_depth, current_depth);
             }
         }
