@@ -51,7 +51,7 @@ void store(Network& network, std::string& parent, std::string& child)
 
 void print(const Network& network, std::string& id, int indent = 0)
 {
-    for(int i = 0; i <= indent; i++)
+    for(int i = 0; i < indent; i++)
     {
         std::cout << "..";
     }
