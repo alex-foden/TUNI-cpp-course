@@ -5,7 +5,7 @@
  * tallentaa ne sopivaan tietorakenteeseen ja antaa käyttäjän tehdä hakuja kyseiseen tietorakenteeseen.
  *
  * Aluksi käyttäjältä kysytään, mistä csv-tiedostosta luetaan kurssitiedot. Ohjelma tarkistaa, että voiko tiedoston avata
- * ja että onko tiedosto oikeassa muodossa. (csv-tiedoston rivissä on 4 saraketta, jossa lukee: kurssin sijainti, teema, nimi sekä osallistujamäärä)
+ * ja että onko tiedosto oikeassa muodossa. (csv-tiedoston rivissä on 4 saraketta, jossa lukee: kurssin paikkakunta, teema, nimi sekä osallistujamäärä)
  * Täydessä kurssissa on 50 osallistujaa. Jos tiedosto pystyttiin avaamaan ja se on oikeassa muodossa, ohjelma tallentaa kurssitiedot tietorakenteeseen.
  *
  * Tässä vaiheessa ohjelma pyytää käyttäjältä (haku)komennon. Valideja komentoja on (7):
@@ -77,14 +77,18 @@ bool read_input_file(Location_info& Education_center);
 bool check_empty_field(vector<string>& fields);
 
 // Lisää Education_center tietorakenteeseen kurssin.
-// Varmistaa, että millään sijainnilla ei ole duplikaatti kurssia (jos kurssi on jo tietorakenteessa, kurssin tiedot päivitetään)
-// Ottaa parametrinä kurssin sijainnin, teeman, nimen ja jäsenmäärän sekä tietorakenteen, johon kurssitiedot lisätään
+// Varmistaa, että millään paikkakunnalla ei ole duplikaatti kurssia (jos kurssi on jo tietorakenteessa, kurssin tiedot päivitetään)
+// Ottaa parametrinä kurssin paikkakunnan, teeman, nimen ja jäsenmäärän sekä tietorakenteen, johon kurssitiedot lisätään
 void insert_course(Location_info& Education_center, string location,
                    string theme, string course, int enrollments);
 
 // Pyytää käyttäjältä komennon. Palauttaa toden, jos käyttäjä syöttää 'quit'. Muuten palauttaa epätoden.
 // Ottaa parametrinä tietorakenteen, josta luetaan ja tulostetaan kurssitiedot käyttäjän hakukommennon mukaisesti
 bool select_command(Location_info& Education_center);
+
+// Tulostaa aakkosjärjestyksessä allekkain kaikki tunnetut paikkakunnat. Ottaa parametrinä tietorakenteen,
+// josta luetaan ja tulostetaan tunnetut paikkakunnat.
+void command_locations(Location_info& Education_center);
 
 // Ottaa parametrinä merkkijonon ja merkin, jonka mukaan merkkijono jaetaan. Jakaa merkkijonon vektoriksi ja palauttaa vektorin
 std::vector<std::string> split(const std::string& s,
@@ -192,7 +196,7 @@ void insert_course(Location_info& Education_center, string location,
     course.theme = theme;
     course.enrollments = enrollments;
 
-    // Tarkistetaan, että sijainnin kurssi ei ole jo listattu tietorakenteeseen. Jos on, päivitetään kurssin tiedot
+    // Tarkistetaan, että paikkakunnan kurssi ei ole jo listattu tietorakenteeseen. Jos on, päivitetään kurssin tiedot
     for(Course& existing_course: Education_center[location])
     {
         if(existing_course.name == course_name and
@@ -222,13 +226,29 @@ bool select_command(Location_info& Education_center)
         return true; // Palauttaa toden, koska ohjelma on pysäytetty
     }
 
+    if(command.at(0) == "locations")
+    {
+        command_locations(Education_center); // Tulostetaan paikkakunnat
+    }
+
     return false; // Palauttaa epätoden, koska ohjelma ei ole pysäytetty
+}
+
+void command_locations(Location_info& Education_center)
+{
+    // Läpikäydään map-tietorakenne ja tulostetaan avaimet (paikkakunnat)
+    for(const pair<const string, vector<Course>>& tmp: Education_center)
+    {
+        string location = tmp.first;
+
+        cout << location << endl;
+    }
 }
 
 // Lyhyt ja yksinkertain main funktio
 int main()
 {
-    // Tietorakenne, jonka avain on sijainti ja arvo on vektori kurssi-strukteja
+    // map-tietorakenne, jonka avain on paikkakunta ja arvo on vektori kursseja
     Location_info Education_center;
 
     // Lukee käyttäjän antaman csv-tiedoston ja täyttää Education_center tietorakenteen.
