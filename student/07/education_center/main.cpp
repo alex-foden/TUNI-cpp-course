@@ -41,6 +41,7 @@
 #include <map>
 #include <vector>
 #include <fstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -65,6 +66,7 @@ using Theme_iterator = map<string, vector<Course>>::iterator;
 // Tulosteet
 const string FILE_ERROR = "Error: the input file cannot be opened";
 const string EMPTY_FIELD = "Error: empty field";
+const string UNKNOWN_LOCATION = "Error: unknown location";
 
 // Lukee käyttäjän antaman csv-tiedoston ja täyttää kurssin tiedot Education_center tietorakenteeseen
 // Ottaa parametrinä tietorakenteen, johon kurssitiedot lisätään
@@ -89,6 +91,10 @@ bool select_command(Location_info& Education_center);
 // Tulostaa aakkosjärjestyksessä allekkain kaikki tunnetut paikkakunnat. Ottaa parametrinä tietorakenteen,
 // josta luetaan ja tulostetaan tunnetut paikkakunnat.
 void command_locations(Location_info& Education_center);
+
+// Tulostaa aakkosjärjestyksessä allekkain kaikki annetun paikkakunnan teemat. Ottaa parametrinä tietorakenteen,
+// josta luetaan ja tulostetaan tunnetut teemat sekä paikkakunnan, johon haku kohdennetaan.
+void command_themes_in_location(Location_info& Education_center, string location);
 
 // Ottaa parametrinä merkkijonon ja merkin, jonka mukaan merkkijono jaetaan. Jakaa merkkijonon vektoriksi ja palauttaa vektorin
 std::vector<std::string> split(const std::string& s,
@@ -219,7 +225,7 @@ bool select_command(Location_info& Education_center)
     getline(cin, input);
 
     // Jaetaan käyttäjän syöte osiin, sillä jotkut komennot ottaa monta syötettä
-    vector<string> command = split(input, ' ');
+    vector<string> command = split(input, ' ', true);
 
     if(command.at(0) == "quit")
     {
@@ -229,6 +235,19 @@ bool select_command(Location_info& Education_center)
     if(command.at(0) == "locations")
     {
         command_locations(Education_center); // Tulostetaan paikkakunnat
+    }
+
+    if(command.at(0) == "themes_in_location")
+    {
+        // Tarkistetaan, että käyttäjä syötti paikkakunnan, josta teemat haetaan
+        if(command.size() != 2)
+        {
+            cout << UNKNOWN_LOCATION << endl;
+            return false; // Virhetilanteessa palautetaan epätosi ja pyydetään toinen komento
+        }
+
+        // Tulostetaan paikkakunnan teemat
+        command_themes_in_location(Education_center, command.at(1));
     }
 
     return false; // Palauttaa epätoden, koska ohjelma ei ole pysäytetty
@@ -242,6 +261,36 @@ void command_locations(Location_info& Education_center)
         string location = tmp.first;
 
         cout << location << endl;
+    }
+}
+
+void command_themes_in_location(Location_info& Education_center, string location)
+{
+    // Paikkakunnan teemat
+    vector<string> themes;
+
+    // Tarkistetaan, että löytyykö paikkakunta tietorakenteesta
+    if(Education_center.find(location) == Education_center.end())
+    {
+        cout << UNKNOWN_LOCATION << endl;
+        return;
+    }
+
+    // Läpikäydään paikkakunnan kurssit ja varmistetaan, että ei tulosteta samaa teema moneen kertaan
+    for(const Course& course: Education_center.at(location))
+    {
+        string theme = course.theme;
+
+        if(find(themes.begin(), themes.end(), theme) == themes.end())
+        {
+            themes.push_back(theme);
+        }
+    }
+
+    // Tulostetaan paikkakunnan teemat
+    for(const string& theme: themes)
+    {
+        cout << theme << endl;
     }
 }
 
