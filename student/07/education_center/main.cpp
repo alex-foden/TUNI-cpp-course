@@ -44,6 +44,7 @@
 
 using namespace std;
 
+
 // csv-tiedostossa esiintyvät tiedot
 enum FIELDS {LOCATION, THEME, COURSE_NAME, ENROLLMENTS, FIELDS_COUNT};
 const int MAX_ENROLLMENTS = 50;
@@ -80,6 +81,10 @@ bool check_empty_field(vector<string>& fields);
 // Ottaa parametrinä kurssin sijainnin, teeman, nimen ja jäsenmäärän sekä tietorakenteen, johon kurssitiedot lisätään
 void insert_course(Location_info& Education_center, string location,
                    string theme, string course, int enrollments);
+
+// Pyytää käyttäjältä komennon. Palauttaa toden, jos käyttäjä syöttää 'quit'. Muuten palauttaa epätoden.
+// Ottaa parametrinä tietorakenteen, josta luetaan ja tulostetaan kurssitiedot käyttäjän hakukommennon mukaisesti
+bool select_command(Location_info& Education_center);
 
 // Ottaa parametrinä merkkijonon ja merkin, jonka mukaan merkkijono jaetaan. Jakaa merkkijonon vektoriksi ja palauttaa vektorin
 std::vector<std::string> split(const std::string& s,
@@ -202,6 +207,24 @@ void insert_course(Location_info& Education_center, string location,
     Education_center[location].push_back(course);
 }
 
+bool select_command(Location_info& Education_center)
+{
+    // Tallennetaan käyttäjän antama komento
+    string input;
+    cout << "> ";
+    getline(cin, input);
+
+    // Jaetaan käyttäjän syöte osiin, sillä jotkut komennot ottaa monta syötettä
+    vector<string> command = split(input, ' ');
+
+    if(command.at(0) == "quit")
+    {
+        return true; // Palauttaa toden, koska ohjelma on pysäytetty
+    }
+
+    return false; // Palauttaa epätoden, koska ohjelma ei ole pysäytetty
+}
+
 // Lyhyt ja yksinkertain main funktio
 int main()
 {
@@ -214,6 +237,9 @@ int main()
     {
         return EXIT_FAILURE;
     }
+
+    // Pyydetään käyttäjältä komentoja kunnes käyttäjä pysäyttää ohjelman
+    while(not select_command(Education_center));
 
     return EXIT_SUCCESS;
 }
