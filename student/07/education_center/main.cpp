@@ -41,6 +41,7 @@
 #include <map>
 #include <vector>
 #include <fstream>
+#include <sstream>
 #include <algorithm>
 
 using namespace std;
@@ -67,6 +68,10 @@ using Theme_iterator = map<string, vector<Course>>::iterator;
 const string FILE_ERROR = "Error: the input file cannot be opened";
 const string EMPTY_FIELD = "Error: empty field";
 const string UNKNOWN_LOCATION = "Error: unknown location";
+const string UNKNOWN_LOCATION_NAME = "Error: unknown location name";
+const string UNKNOWN_THEME = "Error: unknown theme";
+const string ERROR_IN_COMMAND = "Error: error in command ";
+const string UNKNOWN_COMMAND = "Error: Unknown command: ";
 
 // Lukee käyttäjän antaman csv-tiedoston ja täyttää kurssin tiedot Education_center tietorakenteeseen
 // Ottaa parametrinä tietorakenteen, johon kurssitiedot lisätään
@@ -96,28 +101,32 @@ void command_locations(Location_info& Education_center);
 // josta luetaan ja tulostetaan tunnetut teemat sekä paikkakunnan, johon haku kohdennetaan.
 void command_themes_in_location(Location_info& Education_center, string location);
 
-// Ottaa parametrinä merkkijonon ja merkin, jonka mukaan merkkijono jaetaan. Jakaa merkkijonon vektoriksi ja palauttaa vektorin
-std::vector<std::string> split(const std::string& s,
-                               const char delimiter,
-                               bool ignore_empty = false)
-{
-    std::vector<std::string> result;
-    std::string tmp = s;
 
-    while(tmp.find(delimiter) != std::string::npos)
+void command_courses(Location_info& Education_center, string location, string theme);
+
+// Ottaa parametrinä merkkijonon ja delimiter merkin, jonka mukaan merkkijono jaetaan.
+// Jakaa merkkijonon vektoriksi delimiterin mukaan. Teksti lainausmerkkien sisällä ei jaeta.
+// Esimerkkitoiminta:
+// string input = "courses Vesilahti "Information technology"" -> vector<string> output = {"courses", "Vesilahti", "Information technology"}
+std::vector<std::string> split(const std::string& input, const char delimiter)
+{
+    std::vector<std::string> output;
+    bool flag = false;
+    output.push_back("");
+    for(unsigned int character=0; character<input.size(); ++character)
     {
-        std::string new_part = tmp.substr(0, tmp.find(delimiter));
-        tmp = tmp.substr(tmp.find(delimiter) + 1, tmp.size());
-        if(not (ignore_empty and new_part.empty()))
+        if(input[character]=='"')
         {
-            result.push_back(new_part);
+            flag = flag? false : true;
+            continue;
         }
+
+        if(input[character]==delimiter && !flag)
+            output.push_back("");
+        else
+            output[output.size()-1] += input[character];
     }
-    if(not (ignore_empty and tmp.empty()))
-    {
-        result.push_back(tmp);
-    }
-    return result; // Mustaa taikaa. Merkkijono on jaettu vektoriksi.
+    return output;
 }
 
 bool read_input_file(Location_info& Education_center)
@@ -225,29 +234,61 @@ bool select_command(Location_info& Education_center)
     getline(cin, input);
 
     // Jaetaan käyttäjän syöte osiin, sillä jotkut komennot ottaa monta syötettä
-    vector<string> command = split(input, ' ', true);
+    vector<string> command = split(input, ' ');
 
     if(command.at(0) == "quit")
     {
+        // Tarkistetaan että käyttäjä syötti komennon oikein
+        if(command.size() != 1)
+        {
+            cout << ERROR_IN_COMMAND << command.at(0) << endl;
+            return false;
+        }
+
         return true; // Palauttaa toden, koska ohjelma on pysäytetty
     }
 
-    if(command.at(0) == "locations")
+    else if(command.at(0) == "locations")
     {
+        // Tarkistetaan että käyttäjä syötti komennon oikein
+        if(command.size() != 1)
+        {
+            cout << ERROR_IN_COMMAND << command.at(0) << endl;
+            return false;
+        }
+
         command_locations(Education_center); // Tulostetaan paikkakunnat
     }
 
-    if(command.at(0) == "themes_in_location")
+    else if(command.at(0) == "themes_in_location")
     {
         // Tarkistetaan, että käyttäjä syötti paikkakunnan, josta teemat haetaan
         if(command.size() != 2)
         {
-            cout << UNKNOWN_LOCATION << endl;
-            return false; // Virhetilanteessa palautetaan epätosi ja pyydetään toinen komento
+            cout << ERROR_IN_COMMAND << command.at(0) << endl;
+            return false;
         }
 
         // Tulostetaan paikkakunnan teemat
         command_themes_in_location(Education_center, command.at(1));
+    }
+
+    else if(command.at(0) == "courses")
+    {
+        // Tarkistetaan, että käyttäjä syötti paikkakunnan ja teeman, josta kurssit haetaan
+        if(command.size() != 3)
+        {
+            cout << ERROR_IN_COMMAND << command.at(0) << endl;
+            return false;
+        }
+
+        command_courses(Education_center, command.at(1), command.at(2));
+    }
+
+    // Jos käyttäjän syöttämä komento ei ole mikään edellisistä, tulostetaan että ohjelma ei tunnista komentoa
+    else
+    {
+        cout << UNKNOWN_COMMAND << command.at(0) << endl;
     }
 
     return false; // Palauttaa epätoden, koska ohjelma ei ole pysäytetty
@@ -291,6 +332,52 @@ void command_themes_in_location(Location_info& Education_center, string location
     for(const string& theme: themes)
     {
         cout << theme << endl;
+    }
+}
+
+void command_courses(Location_info& Education_center, string location, string theme)
+{
+    // map-säiliö, johon tallennetaan käyttäjän hakemaan paikkakuntaan ja teemaan kuuluvat kurssit ja niiden osallistujamäärät
+    map<string, int> courses;
+
+    // Tarkistetaan, että paikkakunta löytyy tietorakenteesta
+    if(Education_center.find(location) == Education_center.end())
+    {
+        cout << UNKNOWN_LOCATION_NAME << endl;
+        return;
+    }
+
+    // Lisätään map-säiliöön ne kurssit ja niiden osallistujamäärät, jotka kuuluvat käyttäjän hakemaan teemaan
+    for(const Course& course: Education_center.at(location))
+    {
+        if(course.theme == theme)
+        {
+            courses[course.name] = course.enrollments;
+        }
+    }
+
+    // Tarkistetaan, että löytyykö kursseja, jotka vastaavat haettavaa teemaa
+    if(courses.empty())
+    {
+        cout << UNKNOWN_THEME << endl;
+        return;
+    }
+
+    // Tulostetaan kurssit ja niiden osallistujamäärät, jotka kuuluvat käyttäjän hakemaan paikkakuntaan ja teemaan
+    for(const pair<const string, int>& course: courses)
+    {
+        string course_name = course.first;
+        int enrollments = course.second;
+
+        // Jos kurssi on täynnä, tulostetaan tieto käyttäjän luettavaksi
+        if(enrollments == MAX_ENROLLMENTS)
+        {
+            cout << course_name << " --- " << "full" << endl;
+            continue;
+        }
+
+        // Muuten tulostetaan osallistujamäärä
+        cout << course_name << " --- " << enrollments << " enrollments" << endl;
     }
 }
 
