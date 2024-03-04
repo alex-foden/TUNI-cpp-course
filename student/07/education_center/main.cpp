@@ -106,10 +106,14 @@ void command_themes_in_location(Location_info& Education_center, string location
 // Ottaa parametrina tietorakenteen, josta kurssitiedot luetaan sekä käyttäjän syöttämän paikkakunnan ja teeman, johon haku kohdennetaan.
 void command_courses(Location_info& Education_center, string location, string theme);
 
-// Tulostaa näytölle kaikkien paikkakuntien kaikista kursseista ne,joille voi vielä ilmoittautua eli
+// Tulostaa näytölle kaikkien paikkakuntien kaikista kursseista ne, joille voi vielä ilmoittautua eli
 // jotka eivät ole täynnä. Kursseista tulostetaan aakkosjärjestyksessä paikkakunta, teema ja kurssin nimi
 // Ottaa parametrinä tietorakenteen, josta kurssin tiedot luetaan.
 void command_available(Location_info& Education_center);
+
+// Tulostaa kaikilta paikkakunnilta annettuun teemaan kuuluvat kurssit aakkosjärjestyksessä.
+// Ottaa parametrinä tietorakenteen, josta kurssin tiedot luetaan sekä teeman, johon haku kohdennetaan.
+void command_courses_in_theme(Location_info& Education_center, string theme);
 
 // Ottaa parametrinä merkkijonon ja delimiter merkin, jonka mukaan merkkijono jaetaan.
 // Jakaa merkkijonon vektoriksi delimiterin mukaan. Teksti lainausmerkkien sisällä ei jaeta.
@@ -240,7 +244,7 @@ bool select_command(Location_info& Education_center)
     cout << "> ";
     getline(cin, input);
 
-    // Jaetaan käyttäjän syöte osiin, sillä jotkut komennot ottaa monta syötettä
+    // Jaetaan käyttäjän syöte osiin, sillä jotkut komennot ottavat monta syötettä (komento + parametrit)
     vector<string> command = split(input, ' ');
 
     if(command.at(0) == "quit")
@@ -304,6 +308,18 @@ bool select_command(Location_info& Education_center)
 
         // Tulostetaan kurssit sekä niiden teemat ja paikkakunnat, jotka eivät ole täynnä
         command_available(Education_center);
+    }
+
+    else if(command.at(0) == "courses_in_theme")
+    {
+        // Tarkistetaan, että käyttäjä syötti teeman
+        if(command.size() != 2)
+        {
+            cout << ERROR_IN_COMMAND << command.at(0) << endl;
+            return false;
+        }
+
+        command_courses_in_theme(Education_center, command.at(1));
     }
 
     // Jos käyttäjän syöttämä komento ei ole mikään edellisistä, tulostetaan että ohjelma ei tunnista komentoa
@@ -416,6 +432,44 @@ void command_available(Location_info& Education_center)
                 cout << location << " : " << theme << " : " << course_name << endl;
             }
         }
+    }
+}
+
+void command_courses_in_theme(Location_info& Education_center, string theme)
+{
+    // Tallennetaan kaikki kurssit, jotka kuuluvat käyttäjän hakemaan teema
+    vector<string> courses;
+
+    // Läpikäydään kaikki kurssit tietorakenteessa
+    for(const pair<const string, vector<Course>>& tmp: Education_center)
+    {
+        for(const Course& course: tmp.second)
+        {
+            // Tarkistetaan että duplikaatti kursseja ei tulosteta
+            if(find(courses.begin(), courses.end(), course.name) != courses.end())
+            {
+                continue;
+            }
+
+            // Muuten tallennetaan teemaan kuuluva kurssi
+            if(course.theme == theme)
+            {
+                courses.push_back(course.name);
+            }
+        }
+    }
+
+    // Jos ei löytynyt kurssia, joka kuului teemaan (eli teema ei ole olemassa), tulostetaan tieto käyttäjälle
+    if(courses.size() == 0)
+    {
+        cout << UNKNOWN_THEME << endl;
+        return;
+    }
+
+    // Muuten tulostetaan kaikki kurssit
+    for(const string& course_name: courses)
+    {
+        cout << course_name << endl;
     }
 }
 
