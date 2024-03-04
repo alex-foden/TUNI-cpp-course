@@ -101,8 +101,15 @@ void command_locations(Location_info& Education_center);
 // josta luetaan ja tulostetaan tunnetut teemat sekä paikkakunnan, johon haku kohdennetaan.
 void command_themes_in_location(Location_info& Education_center, string location);
 
-
+// Tulostaa kurssin nimen mukaisessa aakkosjärjestyksessä kaikki kyseisen paikkakunnan kurssit,
+// jotka löytyvät kyseiseltä paikkakunnalta ja kyseisestä teemasta sekä osallistujamäärät.
+// Ottaa parametrina tietorakenteen, josta kurssitiedot luetaan sekä käyttäjän syöttämän paikkakunnan ja teeman, johon haku kohdennetaan.
 void command_courses(Location_info& Education_center, string location, string theme);
+
+// Tulostaa näytölle kaikkien paikkakuntien kaikista kursseista ne,joille voi vielä ilmoittautua eli
+// jotka eivät ole täynnä. Kursseista tulostetaan aakkosjärjestyksessä paikkakunta, teema ja kurssin nimi
+// Ottaa parametrinä tietorakenteen, josta kurssin tiedot luetaan.
+void command_available(Location_info& Education_center);
 
 // Ottaa parametrinä merkkijonon ja delimiter merkin, jonka mukaan merkkijono jaetaan.
 // Jakaa merkkijonon vektoriksi delimiterin mukaan. Teksti lainausmerkkien sisällä ei jaeta.
@@ -282,7 +289,21 @@ bool select_command(Location_info& Education_center)
             return false;
         }
 
+        // Tulostetaan paikkakuntaan ja teemaan kuuluvat kurssit ja osallistujamäärät
         command_courses(Education_center, command.at(1), command.at(2));
+    }
+
+    else if(command.at(0) == "available")
+    {
+        // Tarkistetaan, että käyttäjä syötti komennon oikein
+        if(command.size() != 1)
+        {
+            cout << ERROR_IN_COMMAND << command.at(0) << endl;
+            return false;
+        }
+
+        // Tulostetaan kurssit sekä niiden teemat ja paikkakunnat, jotka eivät ole täynnä
+        command_available(Education_center);
     }
 
     // Jos käyttäjän syöttämä komento ei ole mikään edellisistä, tulostetaan että ohjelma ei tunnista komentoa
@@ -297,9 +318,9 @@ bool select_command(Location_info& Education_center)
 void command_locations(Location_info& Education_center)
 {
     // Läpikäydään map-tietorakenne ja tulostetaan avaimet (paikkakunnat)
-    for(const pair<const string, vector<Course>>& tmp: Education_center)
+    for(const pair<const string, vector<Course>>& course: Education_center)
     {
-        string location = tmp.first;
+        string location = course.first;
 
         cout << location << endl;
     }
@@ -378,6 +399,23 @@ void command_courses(Location_info& Education_center, string location, string th
 
         // Muuten tulostetaan osallistujamäärä
         cout << course_name << " --- " << enrollments << " enrollments" << endl;
+    }
+}
+
+void command_available(Location_info& Education_center)
+{
+    for(const pair<const string, vector<Course>>& tmp: Education_center)
+    {
+        string location = tmp.first;
+        for(const Course& course: tmp.second)
+        {
+            string course_name = course.name;
+            string theme = course.theme;
+            if(course.enrollments < MAX_ENROLLMENTS)
+            {
+                cout << location << " : " << theme << " : " << course_name << endl;
+            }
+        }
     }
 }
 
