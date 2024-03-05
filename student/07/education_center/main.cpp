@@ -67,6 +67,7 @@ using Theme_iterator = map<string, vector<Course>>::iterator;
 // Tulosteet
 const string FILE_ERROR = "Error: the input file cannot be opened";
 const string EMPTY_FIELD = "Error: empty field";
+const string NO_ENROLLMENTS = "No enrollments";
 const string UNKNOWN_LOCATION = "Error: unknown location";
 const string UNKNOWN_LOCATION_NAME = "Error: unknown location name";
 const string UNKNOWN_THEME = "Error: unknown theme";
@@ -114,6 +115,10 @@ void command_available(Location_info& Education_center);
 // Tulostaa kaikilta paikkakunnilta annettuun teemaan kuuluvat kurssit aakkosjärjestyksessä.
 // Ottaa parametrinä tietorakenteen, josta kurssin tiedot luetaan sekä teeman, johon haku kohdennetaan.
 void command_courses_in_theme(Location_info& Education_center, string theme);
+
+// Tulostaa suosituimmat teemat ja niiden osallistujamäärät.
+// Ottaa parametrinä tietorakenteen, josta kurssin tiedot luetaan.
+void command_favorite_theme(Location_info& Education_center);
 
 // Ottaa parametrinä merkkijonon ja delimiter merkin, jonka mukaan merkkijono jaetaan.
 // Jakaa merkkijonon vektoriksi delimiterin mukaan. Teksti lainausmerkkien sisällä ei jaeta.
@@ -322,7 +327,19 @@ bool select_command(Location_info& Education_center)
         command_courses_in_theme(Education_center, command.at(1));
     }
 
-    // Jos käyttäjän syöttämä komento ei ole mikään edellisistä, tulostetaan että ohjelma ei tunnista komentoa
+    else if(command.at(0) == "favorite_theme")
+    {
+        // Tarkistetaan, että käyttäjä syötti komennon oikein
+        if(command.size() != 1)
+        {
+            cout << ERROR_IN_COMMAND << command.at(0) << endl;
+            return false;
+        }
+
+        command_favorite_theme(Education_center);
+    }
+
+    // Jos käyttäjän syöttämä komento ei ole mikään edellisistä, tulostetaan tieto käyttäjälle että ohjelma ei tunnista komentoa
     else
     {
         cout << UNKNOWN_COMMAND << command.at(0) << endl;
@@ -470,6 +487,43 @@ void command_courses_in_theme(Location_info& Education_center, string theme)
     for(const string& course_name: courses)
     {
         cout << course_name << endl;
+    }
+}
+
+void command_favorite_theme(Location_info& Education_center)
+{
+    // map-säiliö, jonka avain on teema ja arvo on teeman kaikkien kurssien osallistujamäärien summa
+    map<string, int> themes;
+    // Tallennetaan suurin osallistujamäärä vertausta varten
+    int most_enrollments = 0;
+
+    // Tallennettaan ensin kaikki teemat map-säiliön avaimeksi ja lisätään avaimeen kurssin osallistujamäärä
+    for(const pair<const string, vector<Course>>& tmp: Education_center)
+    {
+        for(const Course& course: tmp.second)
+        {
+            themes[course.theme] += course.enrollments;
+
+            if(themes[course.theme] > most_enrollments) { most_enrollments = themes[course.theme]; }
+        }
+    }
+
+    // Jos ei löydy yhtäkään teemaa (eli csv-tiedosto on tyhjö), tulostetaan tieto käyttäjälle
+    if(themes.empty())
+    {
+        cout << NO_ENROLLMENTS << endl;
+        return;
+    }
+
+    // Muuten tulostetaan kaikkien paikkakuntien kaikki teemat, joiden kurssien osallistujamäärien summa on suurin
+    cout << most_enrollments << " enrollments in themes" << endl;
+
+    for(const pair<const string, int>& theme: themes)
+    {
+        if(theme.second == most_enrollments)
+        {
+            cout << "--- " << theme.first << endl;
+        }
     }
 }
 
