@@ -282,9 +282,6 @@ bool select_command(Location_info& Education_center)
 
     else if(command == "themes_in_location")
     {
-        // Tallennetaan 1. parametri (teema)
-        string theme = input.at(PARAMETER1);
-
         // Tarkistetaan, että käyttäjä syötti paikkakunnan, josta teemat haetaan
         if(input.size() != 2) // themes_in_location ottaa (1) parametria
         {
@@ -292,21 +289,23 @@ bool select_command(Location_info& Education_center)
             return false;
         }
 
+        string theme = input.at(PARAMETER1); // Tallennetaan 1. parametri (teema)
+
         // Tulostetaan paikkakunnan teemat
         command_themes_in_location(Education_center, theme);
     }
 
     else if(command == "courses")
     {
-        string location = input.at(PARAMETER1); // Tallennetaan 1. parametri (paikkakunta)
-        string theme = input.at(PARAMETER2); // Tallennetaan 2. parametri (teema)
-
         // Tarkistetaan, että käyttäjä syötti paikkakunnan ja teeman, josta kurssit haetaan
         if(input.size() != 3) // themes_in_location ottaa (2) parametria
         {
             cout << ERROR_IN_COMMAND << command << endl;
             return false;
         }
+
+        string location = input.at(PARAMETER1); // Tallennetaan 1. parametri (paikkakunta)
+        string theme = input.at(PARAMETER2); // Tallennetaan 2. parametri (teema)
 
         // Tulostetaan paikkakuntaan ja teemaan kuuluvat kurssit ja osallistujamäärät
         command_courses(Education_center, location, theme);
@@ -327,15 +326,14 @@ bool select_command(Location_info& Education_center)
 
     else if(command == "courses_in_theme")
     {
-        // Tallennetaan 1. parametri (teema)
-        string theme = input.at(PARAMETER1);
-
         // Tarkistetaan, että käyttäjä syötti teeman
         if(input.size() != 2) // courses_in_theme ottaa (1) parametria
         {
             cout << ERROR_IN_COMMAND << command << endl;
             return false;
         }
+
+        string theme = input.at(PARAMETER1); // Tallennetaan 1. parametri (teema)
 
         command_courses_in_theme(Education_center, theme);
     }
