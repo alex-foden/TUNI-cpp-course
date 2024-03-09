@@ -177,7 +177,7 @@ int main() {
             }
 
             std::string new_phone_number = "";
-            std::cout << "Enter a new phone number: " <<std::endl;
+            std::cout << "Enter a new phone number: ";
             getline(std::cin, new_phone_number);
             std::cout << std::endl;
 
