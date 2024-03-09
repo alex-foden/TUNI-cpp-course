@@ -90,6 +90,30 @@ bool is_valid_phone_number(const std::string number) {
     return true;
 }
 
+bool write_data(const std::string& file_name,
+                std::map< std::string, Student* >& students)
+{
+    std::ofstream file_object(file_name);
+
+    if(not file_object)
+    {
+        return false;
+    }
+
+    for(auto pair : students)
+    {
+        file_object << (pair.second)->student_number << ";"
+                    << (pair.second)->user_id << ";"
+                    << (pair.second)->name << ";"
+                    << (pair.second)->phone_number << ";"
+                    << (pair.second)->email << ";"
+                    << (pair.second)->skype << std::endl;
+    }
+
+    file_object.close();
+    return true;
+}
+
 
 int main() {
     std::string file_name = "";
@@ -145,7 +169,24 @@ int main() {
                 continue;
             }
             // TODO: Add functionality here
+            std::string id = parts.at(1);
+            if(student_numbers.find(id) == student_numbers.end())
+            {
+                std::cout << "There is no student with the given number!" << std::endl;
+                continue;
+            }
 
+            std::string new_phone_number = "";
+            std::cout << "Enter a new phone number: " <<std::endl;
+            getline(std::cin, new_phone_number);
+            std::cout << std::endl;
+
+            if(is_valid_phone_number(new_phone_number))
+            {
+                student_numbers.at(id)->phone_number = new_phone_number;
+                write_data(file_name, user_ids);
+                continue;
+            }
 
         } else if(command == "Q" or command == "q") {
             // Deleting the data structure: deallocating memory
