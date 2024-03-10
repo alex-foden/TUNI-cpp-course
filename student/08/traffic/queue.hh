@@ -52,7 +52,8 @@ private:
     // the same green period
     unsigned int cycle_;
 
-    // You can define more private features here
+    // Called if the color of the traffic light is green. Remoces first car in queue.
+    void dequeue_();
 
 };
 
