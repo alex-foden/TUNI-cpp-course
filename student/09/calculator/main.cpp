@@ -82,7 +82,7 @@ bool execute_command(vector<string> command_line)
 
         if(command_line.size() - 1 != command.parameter_number)
         {
-            cout << "Error: wrong number of paramaters." << endl;
+            cout << "Error: wrong number of parameters." << endl;
             return true;
         }
 
