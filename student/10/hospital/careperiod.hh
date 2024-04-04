@@ -54,7 +54,12 @@ public:
       */
     Person* Get_Patient();
 
-    // add_staff(Person* staff)
+    /**
+      * @brief Add_Staff
+      * @param staff member to be added to care period
+      * Adds pointer to staff member to map staff_
+      */
+    void Add_Staff(Person* staff);
 
     // is_staff(Person* staff)
 
