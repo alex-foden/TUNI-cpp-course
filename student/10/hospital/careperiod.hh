@@ -2,6 +2,11 @@
  * ----------
  * COMP.CS.110 SPRING 2024
  * ----------
+ * Author:
+ * Name: Alex Foden
+ * Student number: 152492647
+ * Username: cxm844
+ * E-Mail: alex.foden@tuni.fi
  * Class for describing a patient's care period in hospital.
  *
  * Note: Students need to implement almost all of this class by themselves.
@@ -34,6 +39,20 @@ public:
       * @brief destructor
       */
     ~CarePeriod();
+
+    /**
+      * @brief End_CarePeriod
+      * @param patient whose care period will be created
+      * Sets end date for care period
+      */
+    void End_CarePeriod(const Date& today);
+
+    /**
+      * @brief Get_Patient
+      * @return patient_
+      * Returns pointer to the patient the care period is assigned to
+      */
+    Person* Get_Patient();
 
     // add_staff(Person* staff)
 

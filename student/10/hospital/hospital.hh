@@ -2,6 +2,12 @@
  * ----------
  * COMP.CS.110 SPRING 2024
  * ----------
+ * Edited by:
+ * Name: Alex Foden
+ * Student number: 152492647
+ * Username: cxm844
+ * E-Mail: alex.foden@tuni.fi
+ *
  * Class for describing a hospital. Only a single object created from this
  * class. Implements all commands in hospital program.
  *
@@ -166,7 +172,8 @@ private:
     std::map<std::string, Person*> current_patients_;
     std::map<std::string, Person*> staff_;
 
-    std::vector<CarePeriod*> care_periods_;
+    std::vector<CarePeriod*> active_care_periods_;
+    std::vector<CarePeriod*> all_care_periods_;
 
     // method for finding the last care period
 

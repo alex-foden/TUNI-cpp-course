@@ -1,7 +1,16 @@
+/*
+ * Edited by:
+ * Name: Alex Foden
+ * Student number: 152492647
+ * Username: cxm844
+ * E-Mail: alex.foden@tuni.fi
+ * */
+
 #include "hospital.hh"
 #include "utils.hh"
 #include <iostream>
 #include <set>
+#include <algorithm>
 
 Hospital::Hospital()
 {
@@ -125,20 +134,20 @@ void Hospital::enter(Params params)
 
     Person* new_patient;
 
-    // Check if patient IS in hospital (to avoid duplicate patients)
+    // Check if patient is already in a care period
     if(current_patients_.find(patient_id) != current_patients_.end())
     {
         std::cout << ALREADY_EXISTS << patient_id << std::endl;
         return;
     }
 
-    // Check if patient WAS in hospital (if true, create a new care period for existing patient)
+    // Check if patient was previously in the hospital. If so, do not create a new patient
     if(all_patients_.find(patient_id) != all_patients_.end())
     {
         new_patient = all_patients_[patient_id];
         current_patients_[patient_id] = new_patient;
     }
-    // Otherwise make a new patient object and add pointer to patient to both patient vectors
+    // Otherwise create a new patient
     else
     {
         new_patient = new Person(patient_id);
@@ -146,16 +155,45 @@ void Hospital::enter(Params params)
         current_patients_[patient_id] = new_patient;
     }
 
-    // Add care period for patient
+    // Add new care period to patient
     CarePeriod* care_period = new CarePeriod(utils::today, new_patient);
-    care_periods_.push_back(care_period);
+    active_care_periods_.push_back(care_period);
+    all_care_periods_.push_back(care_period);
 
     std::cout << PATIENT_ENTERED << std::endl;
 }
 
 void Hospital::leave(Params params)
 {
+    std::string patient_id = params.at(0);
 
+    // Check if patient is in a care period
+    if(current_patients_.find(patient_id) == current_patients_.end())
+    {
+        std::cout << CANT_FIND << patient_id << std::endl;
+        return;
+    }
+
+    Person* patient = current_patients_[patient_id];
+
+    // End the care period of the patient
+    for(CarePeriod* care_period : active_care_periods_)
+    {
+        if(care_period->Get_Patient() == patient)
+        {
+            care_period->End_CarePeriod(utils::today);
+
+            active_care_periods_.erase(std::find(active_care_periods_.begin(),
+                                                 active_care_periods_.end(),
+                                                 care_period));
+            break;
+        }
+    }
+
+    // Remove patient from the hospital
+    current_patients_.erase(patient_id);
+
+    std::cout << PATIENT_LEFT << std::endl;
 }
 
 void Hospital::assign_staff(Params params)
