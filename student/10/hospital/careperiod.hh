@@ -54,14 +54,17 @@ public:
       */
     Person* Get_Patient();
 
+    Date Get_Start_Date();
+
+    Date Get_End_Date();
+
+    std::map<std::string, Person*> Get_Staff();
     /**
       * @brief Add_Staff
       * @param staff member to be added to care period
       * Adds pointer to staff member to map staff_
       */
     void Add_Staff(Person* staff);
-
-    // is_staff(Person* staff)
 
     // More public methods
 

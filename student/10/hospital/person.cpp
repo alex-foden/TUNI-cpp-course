@@ -66,8 +66,6 @@ void Person::remove_medicine(const std::string& name)
 void Person::print_id() const
 {
     std::cout << id_;
-    //date_of_birth_.print();
-    //std::cout << std::endl;
 }
 
 void Person::print_medicines(const std::string& pre_text) const

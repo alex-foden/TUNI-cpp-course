@@ -27,6 +27,14 @@ Hospital::~Hospital()
         delete iter->second;
     }
 
+    for( std::map<std::string, Person*>::iterator
+         iter = all_patients_.begin();
+         iter != all_patients_.end();
+         ++iter )
+    {
+        delete iter->second;
+    }
+
     // Remember to deallocate patients also
 }
 
@@ -210,12 +218,54 @@ void Hospital::assign_staff(Params params)
     CarePeriod* careperiod = active_care_periods_.at(patient_id);
     careperiod->Add_Staff(staff);
 
-    std::cout << STAFF_ASSIGNED << staff_id << std::endl;
+    std::cout << STAFF_ASSIGNED << patient_id << std::endl;
 }
 
 void Hospital::print_patient_info(Params params)
 {
+    std::string patient_id = params.at(0);
 
+    if(current_patients_.find(patient_id) == current_patients_.end())
+    {
+        std::cout << CANT_FIND << patient_id << std::endl;
+        return;
+    }
+
+    std::vector<CarePeriod*> care_periods = all_care_periods_.at(patient_id);
+    Person* patient = current_patients_.at(patient_id);
+
+    for(CarePeriod* care_period : care_periods)
+    {
+        Date start_date = care_period->Get_Start_Date();
+        Date end_date = care_period->Get_End_Date();
+        std::cout << "* Care period: ";
+        start_date.print();
+        std::cout << " -";
+        if(end_date.is_default() == false)
+        {
+            std::cout << " ";
+            end_date.print();
+        }
+        std::cout << std::endl;
+
+        std::map<std::string, Person*> staff = care_period->Get_Staff();
+        std::cout << "  - Staff:";
+        if(staff.empty() == true)
+        {
+            std::cout << " None";
+        }
+        else
+        {
+            for(const std::pair<const std::string, Person*>& staff_member : staff)
+            {
+                std::cout << " " << staff_member.first;
+            }
+        }
+        std::cout << std::endl;
+    }
+
+    std::cout << "* Medicines:";
+    patient->print_medicines("  - ");
 }
 
 void Hospital::print_care_periods(Params params)

@@ -32,6 +32,21 @@ Person* CarePeriod::Get_Patient()
     return patient_;
 }
 
+Date CarePeriod::Get_Start_Date()
+{
+    return start_;
+}
+
+Date CarePeriod::Get_End_Date()
+{
+    return end_;
+}
+
+std::map<std::string, Person *> CarePeriod::Get_Staff()
+{
+    return staff_;
+}
+
 void CarePeriod::Add_Staff(Person *staff)
 {
     std::string staff_id = staff->get_id();
