@@ -172,8 +172,8 @@ private:
     std::map<std::string, Person*> current_patients_;
     std::map<std::string, Person*> staff_;
 
-    std::map<std::string, CarePeriod*> active_care_periods_;
-    std::map<std::string, std::vector<CarePeriod*>> all_care_periods_;
+    std::vector<CarePeriod*> active_care_periods_;
+    std::vector<CarePeriod*> all_care_periods_;
 
     // method for finding the last care period
 

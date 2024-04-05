@@ -168,8 +168,8 @@ void Hospital::enter(Params params)
 
     // Add new care period to patient
     CarePeriod* care_period = new CarePeriod(utils::today, new_patient);
-    active_care_periods_[patient_id] = care_period;
-    all_care_periods_[patient_id].push_back(care_period);
+    active_care_periods_.push_back(care_period);
+    all_care_periods_.push_back(care_period);
 
     std::cout << PATIENT_ENTERED << std::endl;
 }
@@ -185,11 +185,17 @@ void Hospital::leave(Params params)
         return;
     }
 
-    CarePeriod* care_period = active_care_periods_.at(patient_id);
-
-    // End the care period of the patient
-    care_period->End_CarePeriod(utils::today);
-    active_care_periods_.erase(patient_id);
+    for(CarePeriod* care_period: active_care_periods_)
+    {
+        if(care_period->Get_Patient() == current_patients_.at(patient_id))
+        {
+            care_period->End_CarePeriod(utils::today);
+            active_care_periods_.erase(find(active_care_periods_.begin(),
+                                            active_care_periods_.end(),
+                                            care_period));
+            break;
+        }
+    }
 
     // Remove patient from the hospital
     current_patients_.erase(patient_id);
@@ -218,8 +224,15 @@ void Hospital::assign_staff(Params params)
 
     // Add staff member to patients care period
     Person* staff = staff_.at(staff_id);
-    CarePeriod* careperiod = active_care_periods_.at(patient_id);
-    careperiod->Add_Staff(staff);
+    for(CarePeriod* care_period: active_care_periods_)
+    {
+        if(care_period->Get_Patient() == current_patients_.at(patient_id))
+        {
+            care_period->Add_Staff(staff);
+            break;
+        }
+    }
+
 
     std::cout << STAFF_ASSIGNED << patient_id << std::endl;
 }
@@ -234,8 +247,16 @@ void Hospital::print_patient_info(Params params)
         return;
     }
 
-    std::vector<CarePeriod*> care_periods = all_care_periods_.at(patient_id);
     Person* patient = all_patients_.at(patient_id);
+
+    std::vector<CarePeriod*> care_periods;
+    for(CarePeriod* care_period: all_care_periods_)
+    {
+        if(care_period->Get_Patient() == all_patients_.at(patient_id))
+        {
+            care_periods.push_back(care_period);
+        }
+    }
 
     for(CarePeriod* care_period : care_periods)
     {
@@ -312,6 +333,23 @@ void Hospital::print_all_patients(Params)
 
 void Hospital::print_current_patients(Params)
 {
+    if(current_patients_.empty() == true)
+    {
+        std::cout << "None" << std::endl;
+        return;
+    }
 
+    std::vector<std::string> params;
+    for(const std::pair<const std::string, Person*>& patient: current_patients_)
+    {
+        std::string patient_id = patient.first;
+        params.push_back(patient_id);
+
+        std::cout << patient_id << std::endl;
+
+        print_patient_info(params);
+
+        params.pop_back();
+    }
 }
 
