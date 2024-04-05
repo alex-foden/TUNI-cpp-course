@@ -296,11 +296,45 @@ void Hospital::print_care_periods(Params params)
 {
     std::string staff_id = params.at(0);
 
+    bool staff_has_worked = false;
+
     // Check if staff exists
     if(staff_.find(staff_id) == staff_.end())
     {
         std::cout << CANT_FIND << staff_id << std::endl;
         return;
+    }
+
+    for(CarePeriod* care_period: all_care_periods_)
+    {
+        for(const std::pair<const std::string, Person*>& staff: care_period->Get_Staff())
+        {
+            if(staff_id == staff.first)
+            {
+                staff_has_worked = true;
+                Date start_date = care_period->Get_Start_Date();
+                Date end_date = care_period->Get_End_Date();
+                std::string patient_id = care_period->Get_Patient()->get_id();
+
+                start_date.print();
+                std::cout << " -";
+                if(end_date.is_default() == false)
+                {
+                    std::cout << " ";
+                    end_date.print();
+                }
+                std::cout << std::endl;
+
+                std::cout << "* Patient: " << patient_id << std::endl;
+
+                break;
+            }
+        }
+    }
+
+    if(staff_has_worked == false)
+    {
+        std::cout << "None" << std::endl;
     }
 }
 
