@@ -19,8 +19,6 @@ Person::Person(const std::string& id, const std::string& date_of_birth):
 
 Person::~Person()
 {
-    // Remove the print below before submitting the program in Plussa
-    std::cout << "Person " << id_ << " destructed." << std::endl;
 }
 
 std::string Person::get_id() const

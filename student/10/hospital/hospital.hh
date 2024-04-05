@@ -174,10 +174,6 @@ private:
 
     std::vector<CarePeriod*> active_care_periods_;
     std::vector<CarePeriod*> all_care_periods_;
-
-    // method for finding the last care period
-
-    // More attributes and methods
 };
 
 #endif // HOSPITAL_HH

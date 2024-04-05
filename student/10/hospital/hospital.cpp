@@ -38,7 +38,15 @@ Hospital::~Hospital()
         iter->second = nullptr;
     }
 
-    // Remember to deallocate patients also
+    // Deallocating care periods
+    for( std::vector<CarePeriod*>::iterator
+         iter = all_care_periods_.begin();
+         iter != all_care_periods_.end();
+         ++iter)
+    {
+        delete *iter;
+        *iter = nullptr;
+    }
 }
 
 void Hospital::set_date(Params params)
@@ -185,6 +193,7 @@ void Hospital::leave(Params params)
         return;
     }
 
+    // Find the care period the patient is in and change its status from active to not active
     for(CarePeriod* care_period: active_care_periods_)
     {
         if(care_period->Get_Patient() == current_patients_.at(patient_id))
@@ -233,7 +242,6 @@ void Hospital::assign_staff(Params params)
         }
     }
 
-
     std::cout << STAFF_ASSIGNED << patient_id << std::endl;
 }
 
@@ -241,6 +249,7 @@ void Hospital::print_patient_info(Params params)
 {
     std::string patient_id = params.at(0);
 
+    // Check if patient has been in the hospital
     if(all_patients_.find(patient_id) == all_patients_.end())
     {
         std::cout << CANT_FIND << patient_id << std::endl;
@@ -249,6 +258,7 @@ void Hospital::print_patient_info(Params params)
 
     Person* patient = all_patients_.at(patient_id);
 
+    // Find all care periods patient has been in
     std::vector<CarePeriod*> care_periods;
     for(CarePeriod* care_period: all_care_periods_)
     {
@@ -258,6 +268,7 @@ void Hospital::print_patient_info(Params params)
         }
     }
 
+    // Print the info of all of the care periods patient has been in
     for(CarePeriod* care_period : care_periods)
     {
         Date start_date = care_period->Get_Start_Date();
@@ -265,6 +276,7 @@ void Hospital::print_patient_info(Params params)
         std::cout << "* Care period: ";
         start_date.print();
         std::cout << " -";
+        // Check if patients care period has ended or not
         if(end_date.is_default() == false)
         {
             std::cout << " ";
@@ -274,6 +286,7 @@ void Hospital::print_patient_info(Params params)
 
         std::map<std::string, Person*> staff = care_period->Get_Staff();
         std::cout << "  - Staff:";
+        // Check if patients care period has/had staff
         if(staff.empty() == true)
         {
             std::cout << " None";
@@ -287,7 +300,7 @@ void Hospital::print_patient_info(Params params)
         }
         std::cout << std::endl;
     }
-
+    // Print all the medicine patient has used seperately
     std::cout << "* Medicines:";
     patient->print_medicines("  - ");
 }
@@ -305,8 +318,10 @@ void Hospital::print_care_periods(Params params)
         return;
     }
 
+    // Find all the care periods where the staff in question has worked in
     for(CarePeriod* care_period: all_care_periods_)
     {
+        // Each care period can have many staff. Compare and find the staff in question
         for(const std::pair<const std::string, Person*>& staff: care_period->Get_Staff())
         {
             if(staff_id == staff.first)
@@ -318,6 +333,7 @@ void Hospital::print_care_periods(Params params)
 
                 start_date.print();
                 std::cout << " -";
+                // Check if the care period has ended or not
                 if(end_date.is_default() == false)
                 {
                     std::cout << " ";
@@ -332,6 +348,7 @@ void Hospital::print_care_periods(Params params)
         }
     }
 
+    // Check if staff has been recruited but not assigned to patient
     if(staff_has_worked == false)
     {
         std::cout << "None" << std::endl;
@@ -340,17 +357,55 @@ void Hospital::print_care_periods(Params params)
 
 void Hospital::print_all_medicines(Params)
 {
-
-}
-
-void Hospital::print_all_patients(Params)
-{
+    // Check if hospital has had any patients (no patients = no medicine)
     if(all_patients_.empty() == true)
     {
         std::cout << "None" << std::endl;
         return;
     }
 
+    std::map<std::string, std::vector<std::string>> prescriptions;
+    std::vector<std::string> medicines;
+
+    // Find all medicines which have be prescribed.
+    for(const std::pair<const std::string, Person*>& patient_pair: all_patients_)
+    {
+        std::string patient_id = patient_pair.first;
+        Person* patient = patient_pair.second;
+
+        medicines = patient->get_medicines();
+
+        for(const std::string& medicine: medicines)
+        {
+            prescriptions[medicine].push_back(patient_id);
+        }
+    }
+
+    // Maps are sorted alphabetically by key. Print all medicines and the patients who use them.
+    for(const std::pair<const std::string, std::vector<std::string>>& prescription: prescriptions)
+    {
+        std::string medicine = prescription.first;
+        std::vector<std::string> patients = prescription.second;
+
+        std::cout << medicine << " prescribed for" << std::endl;
+
+        for(const std::string& patient: patients)
+        {
+            std::cout << "* " << patient << std::endl;
+        }
+    }
+}
+
+void Hospital::print_all_patients(Params)
+{
+    // Check if hosptal has had any patients
+    if(all_patients_.empty() == true)
+    {
+        std::cout << "None" << std::endl;
+        return;
+    }
+
+    // Call function print_patient_info for all patients
     std::vector<std::string> params;
     for(const std::pair<const std::string, Person*>& patient: all_patients_)
     {
@@ -367,12 +422,14 @@ void Hospital::print_all_patients(Params)
 
 void Hospital::print_current_patients(Params)
 {
+    // Check if hosptal has had any patients
     if(current_patients_.empty() == true)
     {
         std::cout << "None" << std::endl;
         return;
     }
 
+    // Call function print_patient_info for all current patients
     std::vector<std::string> params;
     for(const std::pair<const std::string, Person*>& patient: current_patients_)
     {
