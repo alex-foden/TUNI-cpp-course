@@ -25,14 +25,17 @@ Hospital::~Hospital()
          ++iter )
     {
         delete iter->second;
+        iter->second = nullptr;
     }
 
+    // Deallocating patients
     for( std::map<std::string, Person*>::iterator
          iter = all_patients_.begin();
          iter != all_patients_.end();
          ++iter )
     {
         delete iter->second;
+        iter->second = nullptr;
     }
 
     // Remember to deallocate patients also
@@ -225,14 +228,14 @@ void Hospital::print_patient_info(Params params)
 {
     std::string patient_id = params.at(0);
 
-    if(current_patients_.find(patient_id) == current_patients_.end())
+    if(all_patients_.find(patient_id) == all_patients_.end())
     {
         std::cout << CANT_FIND << patient_id << std::endl;
         return;
     }
 
     std::vector<CarePeriod*> care_periods = all_care_periods_.at(patient_id);
-    Person* patient = current_patients_.at(patient_id);
+    Person* patient = all_patients_.at(patient_id);
 
     for(CarePeriod* care_period : care_periods)
     {
@@ -270,7 +273,14 @@ void Hospital::print_patient_info(Params params)
 
 void Hospital::print_care_periods(Params params)
 {
+    std::string staff_id = params.at(0);
 
+    // Check if staff exists
+    if(staff_.find(staff_id) == staff_.end())
+    {
+        std::cout << CANT_FIND << staff_id << std::endl;
+        return;
+    }
 }
 
 void Hospital::print_all_medicines(Params)
@@ -280,7 +290,24 @@ void Hospital::print_all_medicines(Params)
 
 void Hospital::print_all_patients(Params)
 {
+    if(all_patients_.empty() == true)
+    {
+        std::cout << "None" << std::endl;
+        return;
+    }
 
+    std::vector<std::string> params;
+    for(const std::pair<const std::string, Person*>& patient: all_patients_)
+    {
+        std::string patient_id = patient.first;
+        params.push_back(patient_id);
+
+        std::cout << patient_id << std::endl;
+
+        print_patient_info(params);
+
+        params.pop_back();
+    }
 }
 
 void Hospital::print_current_patients(Params)
