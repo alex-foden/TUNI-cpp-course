@@ -1,5 +1,5 @@
 #include "mainwindow.hh"
-#include "ui_mainwindow.hh"
+#include "ui_mainwindow.h"
 #include <cmath>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -67,4 +67,3 @@ void MainWindow::on_closeButton_clicked()
 {
     this->close();
 }
-

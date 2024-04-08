@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef MAINWINDOW_HH
+#define MAINWINDOW_HH
 
 #include <QMainWindow>
 
@@ -31,4 +31,4 @@ private:
     double weight_;
     double height_;
 };
-#endif // MAINWINDOW_H
+#endif // MAINWINDOW_HH
