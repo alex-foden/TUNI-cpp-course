@@ -14,7 +14,7 @@ SOURCES += main.cpp \
 HEADERS += \
     animal.hh \
     bird.hh \
-    cockatoo.h \
-    giraffe.h \
-    mammal.h \
+    cockatoo.hh \
+    giraffe.hh \
+    mammal.hh \
     owl.hh 

@@ -1,4 +1,4 @@
-#include "giraffe.h"
+#include "giraffe.hh"
 
 Giraffe::Giraffe():
     Mammal()

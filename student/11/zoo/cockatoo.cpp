@@ -1,4 +1,4 @@
-#include "cockatoo.h"
+#include "cockatoo.hh"
 
 Cockatoo::Cockatoo():
     Bird()

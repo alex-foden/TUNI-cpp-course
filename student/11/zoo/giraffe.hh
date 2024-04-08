@@ -1,6 +1,6 @@
 #ifndef GIRAFFE_H
 #define GIRAFFE_H
-#include "mammal.h"
+#include "mammal.hh"
 
 
 class Giraffe: public Mammal

@@ -1,4 +1,4 @@
-#include "mammal.h"
+#include "mammal.hh"
 
 Mammal::Mammal():
     Animal("Kip kop kip kop")

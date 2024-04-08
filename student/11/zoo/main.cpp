@@ -1,8 +1,8 @@
 #include <iostream>
 
 #include "owl.hh"
-#include "giraffe.h"
-#include "cockatoo.h"
+#include "giraffe.hh"
+#include "cockatoo.hh"
 
 using namespace std;
 
