@@ -1,8 +1,8 @@
 #include <iostream>
 
 #include "owl.hh"
-//#include "giraffe.hh"
-//#include "cockatoo.hh"
+#include "giraffe.h"
+#include "cockatoo.h"
 
 using namespace std;
 
@@ -18,7 +18,7 @@ int main()
     owl.print_altitude(std::cout);
     owl.hoot(std::cout);
 
-    /*
+
 
     std::cout << std::endl << "Giraffe" << std::endl;
 
@@ -36,6 +36,6 @@ int main()
     cockatoo.print_altitude(std::cout);
     cockatoo.sing(std::cout);
 
-    */
+
 
 }

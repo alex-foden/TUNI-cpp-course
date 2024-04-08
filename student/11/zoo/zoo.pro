@@ -6,9 +6,15 @@ CONFIG -= qt
 SOURCES += main.cpp \
     animal.cpp \
     bird.cpp \
+    cockatoo.cpp \
+    giraffe.cpp \
+    mammal.cpp \
     owl.cpp 
 
 HEADERS += \
     animal.hh \
     bird.hh \
+    cockatoo.h \
+    giraffe.h \
+    mammal.h \
     owl.hh 
