@@ -24,8 +24,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QPalette* lcdpalette2 = new QPalette();
 
     lcdpalette1->setColor(QPalette::Window, QColor(50, 100, 170));
-    lcdpalette1->setColor(QPalette::Window, QColor(50, 100, 170));
-    lcdpalette2->setColor(QPalette::Window, QColor(50, 170, 80));
     lcdpalette2->setColor(QPalette::Window, QColor(50, 170, 80));
 
     ui->lcdNumberMin->setPalette(*lcdpalette1);
