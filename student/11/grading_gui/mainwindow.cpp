@@ -46,5 +46,5 @@ void MainWindow::on_calculatePushButton_clicked()
 
     ui->textBrowser->setText("W-Score: " + W_grade_ + "\n" +
                              "P-Score: " + P_grade_ + "\n" +
-                             "Total Grade: " + total_grade_);
+                             "Total grade: " + total_grade_);
 }
