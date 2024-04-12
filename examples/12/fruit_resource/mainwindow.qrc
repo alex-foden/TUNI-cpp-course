@@ -1,0 +1,13 @@
+<RCC>
+    <qresource>
+        <file alias="apple.png">Resources/apple.png</file>
+        <file alias="bananas.png">Resources/bananas.png</file>
+        <file alias="cherries.png">Resources/cherries.png</file>
+        <file alias="eggplant.png">Resources/eggplant.png</file>
+        <file alias="grapes.png">Resources/grapes.png</file>
+        <file alias="orange.png">Resources/orange.png</file>
+        <file alias="pear.png">Resources/pear.png</file>
+        <file alias="strawberry.png">Resources/strawberry.png</file>
+        <file alias="tomato.png">Resources/tomato.png</file>
+    </qresource>
+</RCC>
