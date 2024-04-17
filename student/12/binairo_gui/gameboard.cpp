@@ -36,26 +36,23 @@ bool GameBoard::fill_randomly(unsigned int seed)
 
     // Calling fill_from_input with the constructed string (enclosed with quote
     // marks), whereupon the return value of fill_from_input will be true
-    return fill_from_input('"' + input + '"');
+    return fill_from_input(input);
 }
 
 bool GameBoard::fill_from_input(const std::string &input)
 {
     // Checking the size (assuming that input is enclosed with quote marks)
-    if(input.size() != SIZE * SIZE + 2)
+    if(input.size() != SIZE * SIZE)
     {
         std::cout << "Wrong size of input" << std::endl;
         return false;
     }
 
-    // Removing quote marks
-    std::string actual_input = input.substr(1, SIZE * SIZE);
-
     // Checking the content and moving each element on the gameboard
     for(unsigned int i = 0; i < SIZE * SIZE; ++i)
     {
         Element_type current_element = EMPTY;
-        switch(actual_input.at(i))
+        switch(input.at(i))
         {
         case '0': current_element = ZERO; break;
         case '1': current_element = ONE; break;
@@ -209,6 +206,11 @@ void GameBoard::print() const
     // Tulostetaan alareuna
     // Printing lower border
     print_line(LEFT_COLUMN_WIDTH + 1 + 2 * SIZE + 1, '=');
+}
+
+Element_type GameBoard::get_gridspace(int x, int y)
+{
+    return board_.at(y).at(x);
 }
 
 void GameBoard::init()

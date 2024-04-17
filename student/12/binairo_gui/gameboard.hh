@@ -10,7 +10,7 @@ enum Element_type {ZERO, ONE, EMPTY};
 
 // Vakiot pelilaudan koon määrittelemiseen.
 // Constants for the size of the gameboard.
-const int NUMBER_OF_SYMBOLS = 4;
+const int NUMBER_OF_SYMBOLS = 3;
 const int SIZE = 2 * NUMBER_OF_SYMBOLS;
 
 // Vakio todennäköisyysjakauman ylärajaa varten.
@@ -72,6 +72,8 @@ public:
     // Tulostaa pelilaudan.
     // Prints the gameboard.
     void print() const;
+
+    Element_type get_gridspace(int x, int y);
 
 private:
     // Inits the gameboard, i.e. fills it with EMPTYs.
