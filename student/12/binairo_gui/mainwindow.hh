@@ -53,5 +53,6 @@ private:
     void handle_setup_board_button_clicks();
 
     void setup_board();
+    void update_board(QPushButton* gridspace, int x, int y);
 };
 #endif // MAINWINDOW_HH

@@ -91,7 +91,18 @@ void MainWindow::init_gameboard_setup_menu()
 
 void MainWindow::handle_gameboard_clicks()
 {
-
+    int grid_number = 0;
+    for(QPushButton* gridspace: gridspaces_)
+    {
+        int x = grid_number % SIZE;
+        int y = grid_number / SIZE;
+        if(gridspace == sender())
+        {
+            update_board(gridspace, x, y);
+            return;
+        }
+        grid_number++;
+    }
 }
 
 void MainWindow::handle_symbol_button_clicks()
@@ -196,5 +207,15 @@ void MainWindow::setup_board()
                 gridspaces_.at(gridnumber)->setEnabled(true);
                 break;
         }
+    }
+}
+
+void MainWindow::update_board(QPushButton* gridspace, int x, int y)
+{
+    char symbol = symbol_.toStdString().at(0);
+    if(gameboard_.add_symbol(x, y, symbol))
+    {
+        gridspace->setText(symbol_);
+        gridspace->setEnabled(false);
     }
 }
