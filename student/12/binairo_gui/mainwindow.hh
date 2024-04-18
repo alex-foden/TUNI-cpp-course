@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QTextBrowser>
+#include <QTimer>
 #include <vector>
 
 enum BOARD_SETUP {RANDOM, MANUAL};
@@ -42,15 +43,21 @@ private:
     QLineEdit* seed_input_field_;
     QPushButton* setup_board_button_;
     QTextBrowser* board_setup_status_;
+    QLabel* timer_display_;
+    QTimer* timer_;
+    int seconds_;
+
 
     void init_gameboard();
     void init_symbol_button();
     void init_gameboard_setup_menu();
+    void init_timer();
 
     void handle_gameboard_clicks();
     void handle_symbol_button_clicks();
     void handle_board_setup_tooltip();
     void handle_setup_board_button_clicks();
+    void handle_timer_timeout();
 
     void setup_board();
     void update_board(QPushButton* gridspace, int x, int y);

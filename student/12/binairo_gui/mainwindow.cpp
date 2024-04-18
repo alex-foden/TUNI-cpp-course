@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     init_gameboard();
     init_symbol_button();
     init_gameboard_setup_menu();
+    init_timer();
 }
 
 MainWindow::~MainWindow()
@@ -57,19 +58,19 @@ void MainWindow::init_gameboard_setup_menu()
 {
     QLabel* board_setup_label = new QLabel("SETUP GAMEBOARD TO START GAME", this);
     board_setup_label->setGeometry(BOARD_SIZE + 40, 10 + 20, 300, 50);
-    board_setup_label->setAlignment(Qt::AlignHCenter);
+    board_setup_label->setAlignment(Qt::AlignCenter);
 
     QLabel* randomize_label = new QLabel("Randomize", this);
-    randomize_label->setGeometry(BOARD_SIZE + 40 + 70 + 16/2 - 100/2, 10 + 55, 100, 40);
-    randomize_label->setAlignment(Qt::AlignHCenter);
+    randomize_label->setGeometry(BOARD_SIZE + 40 + 70 + 16/2 - 100/2, 10 + 55, 100, 30);
+    randomize_label->setAlignment(Qt::AlignCenter);
     randomize_button_ = new QRadioButton(this);
     randomize_button_->setGeometry(BOARD_SIZE + 40 + 70, 10 + 80, 16, 16);
     connect(randomize_button_, &QRadioButton::clicked,
             this, &MainWindow::handle_board_setup_tooltip);
 
     QLabel* manual_input_label = new QLabel("Manual input", this);
-    manual_input_label->setGeometry(BOARD_SIZE + 40 + 300 - 70 - 16/2 - 100/2, 10 + 55, 100, 40);
-    manual_input_label->setAlignment(Qt::AlignHCenter);
+    manual_input_label->setGeometry(BOARD_SIZE + 40 + 300 - 70 - 16/2 - 100/2, 10 + 55, 100, 30);
+    manual_input_label->setAlignment(Qt::AlignCenter);
     manual_input_button_ = new QRadioButton(this);
     manual_input_button_->setGeometry(BOARD_SIZE + 40 + 300 - 70 - 16, 10 + 80, 16, 16);
     connect(manual_input_button_, &QRadioButton::clicked,
@@ -87,6 +88,20 @@ void MainWindow::init_gameboard_setup_menu()
 
     board_setup_status_ = new QTextBrowser(this);
     board_setup_status_->setGeometry(BOARD_SIZE + 40, 10 + 135, 300, 50);
+}
+
+void MainWindow::init_timer()
+{
+    QFont timer_font;
+    timer_font.setPixelSize(32);
+    timer_display_ = new QLabel("00:00", this);
+    timer_display_->setGeometry(10, BOARD_SIZE + 10, 200, 100);
+    timer_display_->setAlignment(Qt::AlignCenter);
+    timer_display_->setFont(timer_font);
+
+    timer_ = new QTimer(this);
+    timer_->setInterval(1000);
+    connect(timer_, &QTimer::timeout, this, &MainWindow::handle_timer_timeout);
 }
 
 void MainWindow::handle_gameboard_clicks()
@@ -153,6 +168,7 @@ void MainWindow::handle_setup_board_button_clicks()
             randomize_button_->setEnabled(false);
             manual_input_button_->setEnabled(false);
             board_setup_status_->setText("Generating board");
+            timer_->start();
         }
 
         else
@@ -175,6 +191,7 @@ void MainWindow::handle_setup_board_button_clicks()
             randomize_button_->setEnabled(false);
             manual_input_button_->setEnabled(false);
             board_setup_status_->setText("Board generated");
+            timer_->start();
         }
         else
         {
@@ -183,6 +200,33 @@ void MainWindow::handle_setup_board_button_clicks()
 
         return;
     }
+}
+
+void MainWindow::handle_timer_timeout()
+{
+    seconds_++;
+    QString minutes;
+    QString seconds;
+
+    if(seconds_ / 60 < 10)
+    {
+        minutes = "0" + QString::number(seconds_ / 60);
+    }
+    else
+    {
+        minutes = QString::number(seconds_ / 60);
+    }
+
+    if(seconds_ % 60 < 10)
+    {
+        seconds = "0" + QString::number(seconds_ % 60);
+    }
+    else
+    {
+        seconds = QString::number(seconds_ % 60);
+    }
+
+    timer_display_->setText(minutes + ":" + seconds);
 }
 
 void MainWindow::setup_board()
