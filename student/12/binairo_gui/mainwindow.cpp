@@ -12,15 +12,18 @@ MainWindow::MainWindow(QWidget *parent)
     init_symbol_button();
     init_gameboard_setup_menu();
     init_timer();
+    init_reset_button();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete gameboard_;
 }
 
 void MainWindow::init_gameboard()
 {
+    gameboard_ = new GameBoard();
     QWidget* central = new QWidget(this);
     gameboard_grid_ = new QGridLayout(central);
     gameboard_grid_->setSizeConstraint(QLayout::SetFixedSize);
@@ -47,9 +50,12 @@ void MainWindow::init_gameboard()
 
 void MainWindow::init_symbol_button()
 {
+    QFont symbol_font;
+    symbol_font.setPixelSize(32);
     symbol_ = "0";
     symbol_button_ = new QPushButton(symbol_, this);
-    symbol_button_->setGeometry(BOARD_SIZE / 2 - 50 + 10, BOARD_SIZE + 10, 100, 100);
+    symbol_button_->setGeometry(10 + BOARD_SIZE / 2, BOARD_SIZE + 10, 100, 100);
+    symbol_button_->setFont(symbol_font);
     connect(symbol_button_, &QPushButton::clicked,
             this, &MainWindow::handle_symbol_button_clicks);
 }
@@ -92,6 +98,7 @@ void MainWindow::init_gameboard_setup_menu()
 
 void MainWindow::init_timer()
 {
+
     QFont timer_font;
     timer_font.setPixelSize(32);
     timer_display_ = new QLabel("00:00", this);
@@ -99,9 +106,22 @@ void MainWindow::init_timer()
     timer_display_->setAlignment(Qt::AlignCenter);
     timer_display_->setFont(timer_font);
 
+    seconds_ = 0;
     timer_ = new QTimer(this);
     timer_->setInterval(1000);
     connect(timer_, &QTimer::timeout, this, &MainWindow::handle_timer_timeout);
+}
+
+void MainWindow::init_reset_button()
+{
+    QFont reset_font;
+    reset_font.setPixelSize(32);
+    reset_button_ = new QPushButton("Reset", this);
+    reset_button_->setEnabled(false);
+    reset_button_->setGeometry(10 + 200 - 5, BOARD_SIZE + 10, 200, 100);
+    reset_button_->setFont(reset_font);
+    connect(reset_button_, &QPushButton::clicked,
+            this, &MainWindow::handle_reset_button_clicks);
 }
 
 void MainWindow::handle_gameboard_clicks()
@@ -160,15 +180,29 @@ void MainWindow::handle_setup_board_button_clicks()
     if(randomize_button_->isChecked())
     {
         int seed = seed_input_field_->text().toInt();
-        if(gameboard_.fill_randomly(seed))
+        if(gameboard_->fill_randomly(seed))
         {
             setup_board();
+
             setup_board_button_->setEnabled(false);
             seed_input_field_->setEnabled(false);
+            seed_input_field_->clear();
+            seed_input_field_->setPlaceholderText("");
+
             randomize_button_->setEnabled(false);
+            randomize_button_->setAutoExclusive(false);
+            randomize_button_->setChecked(false);
+            randomize_button_->setAutoExclusive(true);
+
             manual_input_button_->setEnabled(false);
-            board_setup_status_->setText("Generating board");
+            manual_input_button_->setAutoExclusive(false);
+            manual_input_button_->setChecked(false);
+            manual_input_button_->setAutoExclusive(true);
+
+            board_setup_status_->setText("Good luck!");
+
             timer_->start();
+            reset_button_->setEnabled(true);
         }
 
         else
@@ -183,15 +217,29 @@ void MainWindow::handle_setup_board_button_clicks()
     {
         std::string input = seed_input_field_->text().toStdString();
 
-        if(gameboard_.fill_from_input(input))
+        if(gameboard_->fill_from_input(input))
         {
             setup_board();
+
             setup_board_button_->setEnabled(false);
             seed_input_field_->setEnabled(false);
+            seed_input_field_->clear();
+            seed_input_field_->setPlaceholderText("");
+
             randomize_button_->setEnabled(false);
+            randomize_button_->setAutoExclusive(false);
+            randomize_button_->setChecked(false);
+            randomize_button_->setAutoExclusive(true);
+
             manual_input_button_->setEnabled(false);
-            board_setup_status_->setText("Board generated");
+            manual_input_button_->setAutoExclusive(false);
+            manual_input_button_->setChecked(false);
+            manual_input_button_->setAutoExclusive(true);
+
+            board_setup_status_->setText("Good luck!");
+
             timer_->start();
+            reset_button_->setEnabled(true);
         }
         else
         {
@@ -229,13 +277,28 @@ void MainWindow::handle_timer_timeout()
     timer_display_->setText(minutes + ":" + seconds);
 }
 
+void MainWindow::handle_reset_button_clicks()
+{
+    reset_button_->setEnabled(false);
+
+    timer_->stop();
+    seconds_ = 0;
+    timer_display_->setText("00:00");
+
+    randomize_button_->setEnabled(true);
+    manual_input_button_->setEnabled(true);
+    board_setup_status_->clear();
+
+    reset_board();
+}
+
 void MainWindow::setup_board()
 {
     for(int gridnumber = 0; gridnumber < SIZE * SIZE; gridnumber ++)
     {
         int x = gridnumber % SIZE;
         int y = gridnumber / SIZE;
-        switch(gameboard_.get_gridspace(x, y))
+        switch(gameboard_->get_gridspace(x, y))
         {
             case ZERO:
                 gridspaces_.at(gridnumber)->setText("0");
@@ -257,9 +320,17 @@ void MainWindow::setup_board()
 void MainWindow::update_board(QPushButton* gridspace, int x, int y)
 {
     char symbol = symbol_.toStdString().at(0);
-    if(gameboard_.add_symbol(x, y, symbol))
+    if(gameboard_->add_symbol(x, y, symbol))
     {
         gridspace->setText(symbol_);
         gridspace->setEnabled(false);
     }
+}
+
+void MainWindow::reset_board()
+{
+    delete gameboard_;
+    delete gameboard_grid_;
+    gridspaces_.clear();
+    init_gameboard();
 }
