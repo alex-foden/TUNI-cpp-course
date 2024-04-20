@@ -51,11 +51,20 @@ private:
 
     QPushButton* reset_button_;
 
+    QPushButton* pause_button_;
+    bool is_game_paused_;
+
+    QPushButton* close_button_;
+
+    QFont button_font_;
+
     void init_gameboard();
     void init_symbol_button();
     void init_gameboard_setup_menu();
     void init_timer();
     void init_reset_button();
+    void init_pause_button();
+    void init_close_button();
 
     void handle_gameboard_clicks();
     void handle_symbol_button_clicks();
@@ -63,6 +72,8 @@ private:
     void handle_setup_board_button_clicks();
     void handle_timer_timeout();
     void handle_reset_button_clicks();
+    void handle_pause_button_clicks();
+    void handle_close_button_clicks();
 
 
     void setup_board();

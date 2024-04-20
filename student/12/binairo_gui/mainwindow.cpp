@@ -6,13 +6,17 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowState(this->windowState() ^ Qt::WindowMaximized);
+    this->setWindowState(this->windowState() ^ Qt::WindowFullScreen);
+    button_font_.setPixelSize(32);
+    is_game_paused_ = true;
 
     init_gameboard();
     init_symbol_button();
     init_gameboard_setup_menu();
     init_timer();
     init_reset_button();
+    init_pause_button();
+    init_close_button();
 }
 
 MainWindow::~MainWindow()
@@ -50,12 +54,10 @@ void MainWindow::init_gameboard()
 
 void MainWindow::init_symbol_button()
 {
-    QFont symbol_font;
-    symbol_font.setPixelSize(32);
     symbol_ = "0";
     symbol_button_ = new QPushButton(symbol_, this);
-    symbol_button_->setGeometry(10 + BOARD_SIZE / 2, BOARD_SIZE + 10, 100, 100);
-    symbol_button_->setFont(symbol_font);
+    symbol_button_->setGeometry(10 + 2*170 + 2*5, BOARD_SIZE + 10, 100, 100);
+    symbol_button_->setFont(button_font_);
     connect(symbol_button_, &QPushButton::clicked,
             this, &MainWindow::handle_symbol_button_clicks);
 }
@@ -98,13 +100,10 @@ void MainWindow::init_gameboard_setup_menu()
 
 void MainWindow::init_timer()
 {
-
-    QFont timer_font;
-    timer_font.setPixelSize(32);
     timer_display_ = new QLabel("00:00", this);
-    timer_display_->setGeometry(10, BOARD_SIZE + 10, 200, 100);
+    timer_display_->setGeometry(10, BOARD_SIZE + 10, 170, 100);
     timer_display_->setAlignment(Qt::AlignCenter);
-    timer_display_->setFont(timer_font);
+    timer_display_->setFont(button_font_);
 
     seconds_ = 0;
     timer_ = new QTimer(this);
@@ -114,14 +113,31 @@ void MainWindow::init_timer()
 
 void MainWindow::init_reset_button()
 {
-    QFont reset_font;
-    reset_font.setPixelSize(32);
     reset_button_ = new QPushButton("Reset", this);
     reset_button_->setEnabled(false);
-    reset_button_->setGeometry(10 + 200 - 5, BOARD_SIZE + 10, 200, 100);
-    reset_button_->setFont(reset_font);
+    reset_button_->setGeometry(10 + 170 + 5, BOARD_SIZE + 10, 170, 100);
+    reset_button_->setFont(button_font_);
     connect(reset_button_, &QPushButton::clicked,
             this, &MainWindow::handle_reset_button_clicks);
+}
+
+void MainWindow::init_pause_button()
+{
+    pause_button_ = new QPushButton("Pause", this);
+    pause_button_->setEnabled(false);
+    pause_button_->setGeometry(10 + 2*170 + 100 + 3*5, BOARD_SIZE + 10, 170, 100);
+    pause_button_->setFont(button_font_);
+    connect(pause_button_, &QPushButton::clicked,
+            this, &MainWindow::handle_pause_button_clicks);
+}
+
+void MainWindow::init_close_button()
+{
+    close_button_ = new QPushButton("Close", this);
+    close_button_->setGeometry(10 + 3*170 + 100 + 4*5, BOARD_SIZE + 10, 170, 100);
+    close_button_->setFont(button_font_);
+    connect(close_button_, &QPushButton::clicked,
+            this, &MainWindow::handle_close_button_clicks);
 }
 
 void MainWindow::handle_gameboard_clicks()
@@ -144,15 +160,15 @@ void MainWindow::handle_symbol_button_clicks()
 {
     if(symbol_ == "0")
     {
-        symbol_button_->setText("1");
         symbol_ = "1";
+        symbol_button_->setText(symbol_);
         return;
     }
 
     if(symbol_ == "1")
     {
-        symbol_button_->setText("0");
         symbol_ = "0";
+        symbol_button_->setText(symbol_);
         return;
     }
 }
@@ -203,6 +219,8 @@ void MainWindow::handle_setup_board_button_clicks()
 
             timer_->start();
             reset_button_->setEnabled(true);
+            pause_button_->setEnabled(true);
+            is_game_paused_ = false;
         }
 
         else
@@ -240,6 +258,8 @@ void MainWindow::handle_setup_board_button_clicks()
 
             timer_->start();
             reset_button_->setEnabled(true);
+            pause_button_->setEnabled(true);
+            is_game_paused_ = false;
         }
         else
         {
@@ -280,6 +300,9 @@ void MainWindow::handle_timer_timeout()
 void MainWindow::handle_reset_button_clicks()
 {
     reset_button_->setEnabled(false);
+    pause_button_->setEnabled(false);
+    pause_button_->setText("Pause");
+    is_game_paused_ = true;
 
     timer_->stop();
     seconds_ = 0;
@@ -292,12 +315,51 @@ void MainWindow::handle_reset_button_clicks()
     reset_board();
 }
 
+void MainWindow::handle_pause_button_clicks()
+{
+    if(not is_game_paused_)
+    {
+        timer_->stop();
+
+        for(QPushButton* gridspace: gridspaces_)
+        {
+            gridspace->setEnabled(false);
+        }
+
+        pause_button_->setText("Unpause");
+        is_game_paused_ = true;
+    }
+
+    else
+    {
+        timer_->start();
+
+        for(QPushButton* gridspace: gridspaces_)
+        {
+            if(gridspace->text() != "0" and gridspace->text() != "1")
+            {
+                gridspace->setEnabled(true);
+            }
+        }
+
+        pause_button_->setText("Pause");
+        is_game_paused_ = false;
+    }
+}
+
+void MainWindow::handle_close_button_clicks()
+{
+    this->close();
+}
+
 void MainWindow::setup_board()
 {
     for(int gridnumber = 0; gridnumber < SIZE * SIZE; gridnumber ++)
     {
         int x = gridnumber % SIZE;
         int y = gridnumber / SIZE;
+
+
         switch(gameboard_->get_gridspace(x, y))
         {
             case ZERO:
