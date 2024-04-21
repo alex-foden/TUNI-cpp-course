@@ -6,9 +6,11 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowState(this->windowState() ^ Qt::WindowFullScreen);
+    this->setWindowState(this->windowState() ^ Qt::WindowMaximized);
     button_font_.setPixelSize(32);
     is_game_paused_ = true;
+
+    gameboard_ = new GameBoard();
 
     init_gameboard();
     init_symbol_button();
@@ -27,7 +29,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::init_gameboard()
 {
-    gameboard_ = new GameBoard();
     QWidget* central = new QWidget(this);
     gameboard_grid_ = new QGridLayout(central);
     gameboard_grid_->setSizeConstraint(QLayout::SetFixedSize);
@@ -49,6 +50,7 @@ void MainWindow::init_gameboard()
                     this, &MainWindow::handle_gameboard_clicks);
         }
     }
+
     setCentralWidget(central);
 }
 
@@ -143,15 +145,18 @@ void MainWindow::init_close_button()
 void MainWindow::handle_gameboard_clicks()
 {
     int grid_number = 0;
+
     for(QPushButton* gridspace: gridspaces_)
     {
-        int x = grid_number % SIZE;
-        int y = grid_number / SIZE;
+        int column = grid_number % SIZE;
+        int row = grid_number / SIZE;
+
         if(gridspace == sender())
         {
-            update_board(gridspace, x, y);
+            update_board(gridspace, column, row);
             return;
         }
+
         grid_number++;
     }
 }
@@ -177,12 +182,14 @@ void MainWindow::handle_board_setup_tooltip()
 {
     setup_board_button_->setEnabled(true);
     seed_input_field_->setEnabled(true);
+
     if(randomize_button_->isChecked())
     {
         seed_input_field_->clear();
         seed_input_field_->setPlaceholderText("Input seed");
         return;
     }
+
     if(manual_input_button_->isChecked())
     {
         seed_input_field_->clear();
@@ -196,6 +203,7 @@ void MainWindow::handle_setup_board_button_clicks()
     if(randomize_button_->isChecked())
     {
         int seed = seed_input_field_->text().toInt();
+
         if(gameboard_->fill_randomly(seed))
         {
             setup_board();
@@ -222,7 +230,6 @@ void MainWindow::handle_setup_board_button_clicks()
             pause_button_->setEnabled(true);
             is_game_paused_ = false;
         }
-
         else
         {
             board_setup_status_->setText("Bad seed");
@@ -273,28 +280,8 @@ void MainWindow::handle_setup_board_button_clicks()
 void MainWindow::handle_timer_timeout()
 {
     seconds_++;
-    QString minutes;
-    QString seconds;
-
-    if(seconds_ / 60 < 10)
-    {
-        minutes = "0" + QString::number(seconds_ / 60);
-    }
-    else
-    {
-        minutes = QString::number(seconds_ / 60);
-    }
-
-    if(seconds_ % 60 < 10)
-    {
-        seconds = "0" + QString::number(seconds_ % 60);
-    }
-    else
-    {
-        seconds = QString::number(seconds_ % 60);
-    }
-
-    timer_display_->setText(minutes + ":" + seconds);
+    QString time = get_time();
+    timer_display_->setText(time);
 }
 
 void MainWindow::handle_reset_button_clicks()
@@ -302,7 +289,6 @@ void MainWindow::handle_reset_button_clicks()
     reset_button_->setEnabled(false);
     pause_button_->setEnabled(false);
     pause_button_->setText("Pause");
-    is_game_paused_ = true;
 
     timer_->stop();
     seconds_ = 0;
@@ -333,13 +319,19 @@ void MainWindow::handle_pause_button_clicks()
     else
     {
         timer_->start();
+        int grid_number = 0;
 
         for(QPushButton* gridspace: gridspaces_)
         {
-            if(gridspace->text() != "0" and gridspace->text() != "1")
+            int column = grid_number % SIZE;
+            int row = grid_number / SIZE;
+
+            if(gameboard_->get_gridspace(column, row) == EMPTY)
             {
                 gridspace->setEnabled(true);
             }
+
+            grid_number++;
         }
 
         pause_button_->setText("Pause");
@@ -352,47 +344,104 @@ void MainWindow::handle_close_button_clicks()
     this->close();
 }
 
+QString MainWindow::get_time()
+{
+    QString minutes = QString::number(seconds_ / 60);
+    QString seconds = QString::number(seconds_ % 60);
+
+    if(seconds_ / 60 < 10)
+    {
+        minutes = "0" + minutes;
+    }
+
+    if(seconds_ % 60 < 10)
+    {
+        seconds = "0" + seconds;
+    }
+
+    return minutes + ":" + seconds;
+}
+
 void MainWindow::setup_board()
 {
-    for(int gridnumber = 0; gridnumber < SIZE * SIZE; gridnumber ++)
+    int gridnumber = 0;
+
+    for(QPushButton* gridspace : gridspaces_)
     {
-        int x = gridnumber % SIZE;
-        int y = gridnumber / SIZE;
+        int column = gridnumber % SIZE;
+        int row = gridnumber / SIZE;
 
-
-        switch(gameboard_->get_gridspace(x, y))
+        switch(gameboard_->get_gridspace(column, row))
         {
             case ZERO:
-                gridspaces_.at(gridnumber)->setText("0");
-                gridspaces_.at(gridnumber)->setEnabled(false);
+                gridspace->setText("0");
+                gridspace->setEnabled(false);
                 break;
 
             case ONE:
-                gridspaces_.at(gridnumber)->setText("1");
-                gridspaces_.at(gridnumber)->setEnabled(false);
+                gridspace->setText("1");
+                gridspace->setEnabled(false);
                 break;
 
             default:
-                gridspaces_.at(gridnumber)->setEnabled(true);
+                gridspace->setEnabled(true);
                 break;
         }
+
+        gridnumber++;
     }
 }
 
-void MainWindow::update_board(QPushButton* gridspace, int x, int y)
+void MainWindow::update_board(QPushButton* gridspace, int column, int row)
 {
     char symbol = symbol_.toStdString().at(0);
-    if(gameboard_->add_symbol(x, y, symbol))
+
+    if(gameboard_->add_symbol(column, row, symbol))
     {
         gridspace->setText(symbol_);
         gridspace->setEnabled(false);
+    }
+
+    if(gameboard_->is_game_over())
+    {
+        end_game();
     }
 }
 
 void MainWindow::reset_board()
 {
-    delete gameboard_;
+    gameboard_->clear_board();
     delete gameboard_grid_;
     gridspaces_.clear();
     init_gameboard();
+}
+
+void MainWindow::end_game()
+{
+    timer_->stop();
+    QString time = get_time();
+    int messageBoxResult = 0;
+    messageBoxResult = QMessageBox::question(0,
+                                             "You won in " + time + "!",
+                                             "Continue playing?",
+                                             QMessageBox::Yes,
+                                             QMessageBox::No);
+
+    if(messageBoxResult == QMessageBox::Yes)
+    {
+        pause_button_->setEnabled(false);
+        reset_button_->setEnabled(false);
+        randomize_button_->setEnabled(true);
+        manual_input_button_->setEnabled(true);
+        board_setup_status_->clear();
+
+        seconds_ = 0;
+        timer_display_->setText("00:00");
+
+        reset_board();
+    }
+    else
+    {
+        this->close();
+    }
 }

@@ -75,6 +75,8 @@ public:
 
     Element_type get_gridspace(int x, int y);
 
+    void clear_board();
+
 private:
     // Inits the gameboard, i.e. fills it with EMPTYs.
     void init();

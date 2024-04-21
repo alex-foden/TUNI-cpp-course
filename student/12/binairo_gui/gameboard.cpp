@@ -213,6 +213,12 @@ Element_type GameBoard::get_gridspace(int x, int y)
     return board_.at(y).at(x);
 }
 
+void GameBoard::clear_board()
+{
+    board_.clear();
+    init();
+}
+
 void GameBoard::init()
 {
     std::vector<Element_type> row(SIZE, EMPTY);

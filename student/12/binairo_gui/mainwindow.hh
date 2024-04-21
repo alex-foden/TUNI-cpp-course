@@ -10,6 +10,7 @@
 #include <QLineEdit>
 #include <QTextBrowser>
 #include <QTimer>
+#include <QMessageBox>
 #include <vector>
 
 enum BOARD_SETUP {RANDOM, MANUAL};
@@ -28,8 +29,6 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private slots:
-
 private:
     Ui::MainWindow *ui;
     GameBoard* gameboard_;
@@ -47,6 +46,7 @@ private:
 
     QLabel* timer_display_;
     QTimer* timer_;
+
     int seconds_;
 
     QPushButton* reset_button_;
@@ -75,9 +75,11 @@ private:
     void handle_pause_button_clicks();
     void handle_close_button_clicks();
 
+    QString get_time();
 
     void setup_board();
-    void update_board(QPushButton* gridspace, int x, int y);
+    void update_board(QPushButton* gridspace, int column, int row);
     void reset_board();
+    void end_game();
 };
 #endif // MAINWINDOW_HH
