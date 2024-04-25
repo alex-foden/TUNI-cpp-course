@@ -31,7 +31,6 @@ const unsigned int LEFT_COLUMN_WIDTH = 5;
 class GameBoard
 {
 public:
-    // Rakentaja.
     // Constructor. Calls init() to fill the board with EMPTYs.
     GameBoard();
 
@@ -69,12 +68,13 @@ public:
     // gameboard.
     bool is_game_over() const;
 
-    // Tulostaa pelilaudan.
     // Prints the gameboard.
     void print() const;
 
+    // Returns the symbol at the given x and y coordinates
     Element_type get_gridspace(int x, int y);
 
+    // Clears the board
     void clear_board();
 
 private:
