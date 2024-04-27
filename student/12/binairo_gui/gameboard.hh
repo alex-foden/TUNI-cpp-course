@@ -4,20 +4,9 @@
 #include <vector>
 #include <string>
 
-// Pelilaudan alkioiden tyyppi.
 // Type of the elements in the gameboa
 enum Element_type {ZERO, ONE, EMPTY};
 
-// Vakiot pelilaudan koon määrittelemiseen.
-// Constants for the size of the gameboard.
-const int NUMBER_OF_SYMBOLS = 3;
-const int SIZE = 2 * NUMBER_OF_SYMBOLS;
-
-// Vakio todennäköisyysjakauman ylärajaa varten.
-// Nollilla ja ykkösillä on sama todennäköisyys, vaikkapa x, ja tyhjien
-// todennäköisyyden voidaan arvioida olevan 6x, jolloin jakaumassa
-// on yhteensä kahdeksan pistettä (lukua), joten sopiva väli on esim. [0..7].
-//
 // Constant for the upper bound of probability distribution.
 // Zeros and ones have the same probability, say x, and the estimated
 // probability of empties is 6x, whereupon their sum is 8x, and thus,
@@ -33,6 +22,9 @@ class GameBoard
 public:
     // Constructor. Calls init() to fill the board with EMPTYs.
     GameBoard();
+
+    // Set the size of the gameboard
+    void set_size(unsigned int size);
 
     // Fills the gameboard randomly with three symbols (ZERO, ONE, EMPTY)
     // such that every fourth element is non-empty.
@@ -97,6 +89,9 @@ private:
 
     // Gameboard
     std::vector<std::vector<Element_type>> board_;
+
+    unsigned int number_of_symbols_; // Max amount of each symbol in row/column
+    unsigned int size_; // Size of gameboard (2 * number_of_symbols)
 
     // Ratkaisemattoman pelilaudan tuottavat siemenluvut väliltä [1..50].
     // A list of seed values from [1..50] that produce non-solvable gameboard.

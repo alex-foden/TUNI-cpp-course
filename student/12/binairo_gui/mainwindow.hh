@@ -11,6 +11,7 @@
 #include <QTextBrowser>
 #include <QTimer>
 #include <QMessageBox>
+#include <QComboBox>
 #include <vector>
 
 // Each way you can setup the board to start the game
@@ -18,7 +19,7 @@ enum BOARD_SETUP {RANDOM, MANUAL};
 
 // Constants for setting the UI
 const int BOARD_SIZE = 800; // Width and height of the board
-const int BOARD_MARGIN = 8; // Distance of the edge of the window and the board
+const int BOARD_MARGIN = 10; // Distance of the edge of the window and the board
 const int RIGHT_MARGIN = 30; // Extra distance of the board and ui components to its right
 const int TOP_MARGIN = 20; // Extra distance from the top of the window for ui components to the right of the board
 const int BUTTON_MARGIN = 5; // Distance between the buttons below the board
@@ -52,12 +53,15 @@ private:
     // shows the state of the game in the ui and allows the user to interact with game through the ui
     QGridLayout* gameboard_grid_;
     std::vector<QPushButton*> gridspaces_; // pointers to every gridspace in the gameboard
+    unsigned int size_;
 
     // Symbols used in gameboard.
     QPixmap CIRCLE; // symbol = '0'
+    QPixmap CIRCLE_GRAY; // paused
     QPixmap CIRCLE_GREEN; // todo: go green when row/column is correct
     QPixmap CIRCLE_RED; // incorrect input
     QPixmap CROSS; // symbol = '1'
+    QPixmap CROSS_GRAY; // paused
     QPixmap CROSS_GREEN; // todo: go green when row/column is correct
     QPixmap CROSS_RED; // incorrect input
 
@@ -71,6 +75,7 @@ private:
     QRadioButton* manual_input_button_;
     QLineEdit* seed_input_field_;
     QPushButton* setup_board_button_;
+    QComboBox* board_size_dropdown_;
 
     // Timer
     QLabel* timer_display_;
@@ -151,6 +156,9 @@ private:
     // Takes the current time used and formats it into standard mm:ss format (f.ex 02:43).
     // Returns the current time used in the game as a QString.
     QString get_time();
+
+    // Sets the size of the gameboard
+    void set_board_size();
 
     // Reads the GameBoard objects board vector and updates the gameboard_grid UI component.
     // Disables all non empty buttons and enables all empty buttons.

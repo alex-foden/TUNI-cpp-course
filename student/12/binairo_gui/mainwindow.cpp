@@ -9,11 +9,16 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowState(this->windowState() ^ Qt::WindowFullScreen);
     this->setStyleSheet("background-color: black; color: white;");
 
+    // Default size of the board
+    size_ = 6;
+
     // Symbols used in the gameboard grid UI. Colors are self explanatory.
     CIRCLE = QPixmap(":/Resources/circle.png"); // symbol == '0'
+    CIRCLE_GRAY = QPixmap(":/Resources/circlegray.png"); // paused
     CIRCLE_GREEN = QPixmap(":/Resources/circlegreen.png"); // correct
     CIRCLE_RED = QPixmap(":/Resources/circlered.png"); // incorrect
     CROSS = QPixmap(":/Resources/cross.png"); // symbol == '1'
+    CROSS_GRAY = QPixmap(":/Resources/crossgray.png"); // paused
     CROSS_GREEN = QPixmap(":/Resources/crossgreen.png"); // correct
     CROSS_RED = QPixmap(":/Resources/crossred.png"); // incorrect
 
@@ -52,21 +57,24 @@ void MainWindow::init_gameboard()
     gameboard_grid_->setVerticalSpacing(0);
 
     // Add QPushButtons to SIZExSIZE QGridLayout
-    for(int row = 0; row < SIZE; row++)
+    for(unsigned int row = 0; row < size_; row++)
     {
-        for(int column = 0; column < SIZE; column++)
+        for(unsigned int column = 0; column < size_; column++)
         {
             // Create a gridspace button and add it to (column, row) in gameboard grid.
             QPushButton* gridspace = new QPushButton(" ", this);
             gridspace->setStyleSheet("border: 1px solid #333333;");
-            gridspace->setEnabled(false);
-            gridspace->setFixedWidth(BOARD_SIZE / SIZE);
-            gridspace->setFixedHeight(BOARD_SIZE / SIZE);
 
-            // Add pointer to the button to vecor gridspaces_ for other methods access.
+            // Button is disabled until player starts the game
+            gridspace->setEnabled(false);
+            gridspace->setFixedWidth(BOARD_SIZE / size_);
+            gridspace->setFixedHeight(BOARD_SIZE / size_);
+
+            // Add pointer to the button to vector gridspaces_ for other methods access.
             gridspaces_.push_back(gridspace);
 
             gameboard_grid_->addWidget(gridspace, row, column);
+
             // On click, calls handle_gameboard_clicks().
             connect(gridspace, &QPushButton::clicked,
                     this, &MainWindow::handle_gameboard_clicks);
@@ -97,15 +105,35 @@ void MainWindow::init_gameboard_setup_menu()
                                    BOARD_MARGIN + TOP_MARGIN, SETUP_MENU_WIDTH, DEFAULT_LABEL_HEIGHT);
     board_setup_label->setAlignment(Qt::AlignCenter);
 
+    QLabel* board_size_label = new QLabel("Set size of the board", this);
+    board_size_label->setGeometry(BOARD_SIZE + 2*BOARD_MARGIN + RIGHT_MARGIN,
+                                  BOARD_MARGIN + TOP_MARGIN + DEFAULT_LABEL_HEIGHT + LABEL_MARGIN,
+                                  SETUP_MENU_WIDTH/2, DEFAULT_LABEL_HEIGHT);
+    board_size_dropdown_ = new QComboBox(this);
+    board_size_dropdown_->setGeometry(BOARD_SIZE + 2*BOARD_MARGIN + RIGHT_MARGIN + SETUP_MENU_WIDTH/2,
+                                      BOARD_MARGIN + TOP_MARGIN + DEFAULT_LABEL_HEIGHT + LABEL_MARGIN,
+                                      SETUP_MENU_WIDTH/2, DEFAULT_LABEL_HEIGHT);
+    board_size_dropdown_->setStyleSheet("border: 1px solid white");
+    board_size_dropdown_->insertItem(0, "6x6");
+    board_size_dropdown_->insertItem(1, "8x8");
+    board_size_dropdown_->insertItem(3, "10x10");
+    board_size_dropdown_->insertItem(4, "12x12");
+    board_size_dropdown_->insertItem(5, "14x14");
+    board_size_dropdown_->insertItem(6, "16x16");
+    board_size_dropdown_->insertItem(7, "18x18");
+    board_size_dropdown_->insertItem(8, "20x20");
+    connect(board_size_dropdown_, &QComboBox::activated,
+            this, &MainWindow::set_board_size);
+
     // Creating the label for the randomize QRadioButton.
     QLabel* randomize_label = new QLabel("Randomize", this);
     randomize_label->setGeometry(BOARD_SIZE + 2*BOARD_MARGIN + RIGHT_MARGIN + SETUP_MENU_WIDTH/4 - DEFAULT_LABEL_WIDTH/2,
-                                 BOARD_MARGIN + TOP_MARGIN + DEFAULT_LABEL_HEIGHT + LABEL_MARGIN, DEFAULT_LABEL_WIDTH, DEFAULT_LABEL_HEIGHT);
+                                 BOARD_MARGIN + TOP_MARGIN + 2*DEFAULT_LABEL_HEIGHT + 2*LABEL_MARGIN, DEFAULT_LABEL_WIDTH, DEFAULT_LABEL_HEIGHT);
     randomize_label->setAlignment(Qt::AlignCenter);
     // Creating the randomize radio button. On click, calls handle_board_setup_tooltip()
     randomize_button_ = new QRadioButton(this);
     randomize_button_->setGeometry(BOARD_SIZE + 2*BOARD_MARGIN + RIGHT_MARGIN + SETUP_MENU_WIDTH/4 - RADIO_BUTTON_SIZE/2,
-                                   BOARD_MARGIN + TOP_MARGIN + 2*DEFAULT_LABEL_HEIGHT + LABEL_MARGIN, RADIO_BUTTON_SIZE, RADIO_BUTTON_SIZE);
+                                   BOARD_MARGIN + TOP_MARGIN + 3*DEFAULT_LABEL_HEIGHT + 2*LABEL_MARGIN, RADIO_BUTTON_SIZE, RADIO_BUTTON_SIZE);
     randomize_button_->setStyleSheet("background: none; color: default;");
     connect(randomize_button_, &QRadioButton::clicked,
             this, &MainWindow::handle_board_setup_tooltip);
@@ -113,12 +141,12 @@ void MainWindow::init_gameboard_setup_menu()
     // Creating the label for the manual input QRadioButton
     QLabel* manual_input_label = new QLabel("Manual input", this);
     manual_input_label->setGeometry(BOARD_SIZE + 2*BOARD_MARGIN + RIGHT_MARGIN + 3*SETUP_MENU_WIDTH/4 - DEFAULT_LABEL_WIDTH/2,
-                                    BOARD_MARGIN + TOP_MARGIN + DEFAULT_LABEL_HEIGHT + LABEL_MARGIN, DEFAULT_LABEL_WIDTH, DEFAULT_LABEL_HEIGHT);
+                                    BOARD_MARGIN + TOP_MARGIN + 2*DEFAULT_LABEL_HEIGHT + 2*LABEL_MARGIN, DEFAULT_LABEL_WIDTH, DEFAULT_LABEL_HEIGHT);
     manual_input_label->setAlignment(Qt::AlignCenter);
     // Creating the manual input QRadioButton. On click, call handle_board_setup_tooltip().
     manual_input_button_ = new QRadioButton(this);
     manual_input_button_->setGeometry(BOARD_SIZE + 2*BOARD_MARGIN + RIGHT_MARGIN + 3*SETUP_MENU_WIDTH/4 - RADIO_BUTTON_SIZE/2,
-                                       BOARD_MARGIN + TOP_MARGIN + 2*DEFAULT_LABEL_HEIGHT + LABEL_MARGIN, RADIO_BUTTON_SIZE, RADIO_BUTTON_SIZE);
+                                       BOARD_MARGIN + TOP_MARGIN + 3*DEFAULT_LABEL_HEIGHT + 2*LABEL_MARGIN, RADIO_BUTTON_SIZE, RADIO_BUTTON_SIZE);
     manual_input_button_->setStyleSheet("background: none; color: default");
     connect(manual_input_button_, &QRadioButton::clicked,
             this, &MainWindow::handle_board_setup_tooltip);
@@ -127,7 +155,7 @@ void MainWindow::init_gameboard_setup_menu()
     // Disabled until user selects one of the QRadioButtons for selecting the setup method.
     seed_input_field_ = new QLineEdit("Select setup method", this);
     seed_input_field_->setGeometry(BOARD_SIZE + 2*BOARD_MARGIN + RIGHT_MARGIN,
-                                   BOARD_MARGIN + TOP_MARGIN + 2*DEFAULT_LABEL_HEIGHT + 2*LABEL_MARGIN + RADIO_BUTTON_SIZE,
+                                   BOARD_MARGIN + TOP_MARGIN + 3*DEFAULT_LABEL_HEIGHT + 3*LABEL_MARGIN + RADIO_BUTTON_SIZE,
                                    SETUP_MENU_WIDTH, SEED_INPUT_FIELD_HEIGHT);
     seed_input_field_->setStyleSheet("color: white; border: 1px solid #333333;");
     seed_input_field_->setEnabled(false);
@@ -137,7 +165,7 @@ void MainWindow::init_gameboard_setup_menu()
     // On click, calls handle_setup_board_button_clicks().
     setup_board_button_ = new QPushButton("Start", this);
     setup_board_button_->setGeometry(BOARD_SIZE + 2*BOARD_MARGIN + RIGHT_MARGIN + SETUP_MENU_WIDTH/2 - DEFAULT_BUTTON_WIDTH/2,
-                                     BOARD_MARGIN + TOP_MARGIN + 2*DEFAULT_LABEL_HEIGHT + 3*LABEL_MARGIN + RADIO_BUTTON_SIZE + SEED_INPUT_FIELD_HEIGHT,
+                                     BOARD_MARGIN + TOP_MARGIN + 3*DEFAULT_LABEL_HEIGHT + 4*LABEL_MARGIN + RADIO_BUTTON_SIZE + SEED_INPUT_FIELD_HEIGHT,
                                      DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT/2);
     setup_board_button_->setEnabled(false);
     setup_board_button_->setStyleSheet("color: #444444; border: 1px solid #333333;");
@@ -209,8 +237,8 @@ void MainWindow::handle_gameboard_clicks()
     // Iterate through gridspaces vector to find the gridspace user clicked.
     for(QPushButton* gridspace: gridspaces_)
     {
-        int x = grid_number % SIZE;
-        int y = grid_number / SIZE;
+        int x = grid_number % size_;
+        int y = grid_number / size_;
 
         if(gridspace == sender())
         {
@@ -265,9 +293,11 @@ void MainWindow::handle_setup_board_button_clicks()
 {
     if(randomize_button_->isChecked())
     {
-        int seed = seed_input_field_->text().toInt();
+        int seed = 0;
+        while(true)
+        {
 
-        // Check if seed is valid. Also fills the GameBoard objects board.
+        // Check if seed is valid. Also fill the GameBoard objects board.
         if(gameboard_->fill_randomly(seed))
         {
             // Disable the setup menu
@@ -277,6 +307,8 @@ void MainWindow::handle_setup_board_button_clicks()
             seed_input_field_->setPlaceholderText("Good luck!");
             seed_input_field_->setStyleSheet("border: 1px solid #333333;");
             setup_board_button_->setStyleSheet("color: #444444; border: 1px solid #333333;");
+            board_size_dropdown_->setEnabled(false);
+            board_size_dropdown_->setStyleSheet("color: #444444; border: 1px solid #333333");
 
             randomize_button_->setEnabled(false);
             randomize_button_->setAutoExclusive(false);
@@ -302,11 +334,14 @@ void MainWindow::handle_setup_board_button_clicks()
 
             // Setup the board
             setup_board();
+            return;
         }
         else // Seed was invalid
         {
             seed_input_field_->clear();
             seed_input_field_->setPlaceholderText("Bad seed");
+            seed++;
+        }
         }
 
         return;
@@ -317,7 +352,7 @@ void MainWindow::handle_setup_board_button_clicks()
     {
         std::string input = seed_input_field_->text().toStdString();
 
-        // Check if user inputted the board correctly. Also fills the GameBoard objects board.
+        // Check if user inputted the board correctly. Also fill the GameBoard objects board.
         if(gameboard_->fill_from_input(input))
         {
             // Disable the setup menu
@@ -327,6 +362,8 @@ void MainWindow::handle_setup_board_button_clicks()
             seed_input_field_->setPlaceholderText("Good luck!");
             seed_input_field_->setStyleSheet("border: 1px solid #333333;");
             setup_board_button_->setStyleSheet("color: #444444; border: 1px solid #333333;");
+            board_size_dropdown_->setEnabled(false);
+            board_size_dropdown_->setStyleSheet("color: #444444; border: 1px solid #333333");
 
             randomize_button_->setEnabled(false);
             randomize_button_->setAutoExclusive(false);
@@ -392,6 +429,8 @@ void MainWindow::handle_reset_button_clicks()
     manual_input_button_->setEnabled(true);
     seed_input_field_->setPlaceholderText("Select setup method");
     seed_input_field_->clear();
+    board_size_dropdown_->setEnabled(true);
+    board_size_dropdown_->setStyleSheet("color: white; border: 1px solid white;");
 
     // Reset the gameboard grid UI and the GameBoard object
     reset_board();
@@ -406,10 +445,25 @@ void MainWindow::handle_pause_button_clicks()
         timer_display_->setStyleSheet("color: #444444; border: 1px solid #333333;");
 
         // Disable the gameboard grid UI
+        int grid_number = 0;
+
         for(QPushButton* gridspace: gridspaces_)
         {
             gridspace->setEnabled(false);
             gridspace->setStyleSheet("border: 1px solid #333333;");
+            int x = grid_number % size_;
+            int y = grid_number / size_;
+
+            if(gameboard_->get_gridspace(x, y) == ZERO)
+            {
+                gridspace->setIcon(CIRCLE_GRAY);
+            }
+            if(gameboard_->get_gridspace(x, y) == ONE)
+            {
+                gridspace->setIcon(CROSS_GRAY);
+            }
+
+            grid_number++;
         }
 
         pause_button_->setText("Unpause");
@@ -428,12 +482,20 @@ void MainWindow::handle_pause_button_clicks()
         for(QPushButton* gridspace: gridspaces_)
         {
             gridspace->setStyleSheet("border: 1px solid #888888;");
-            int x = grid_number % SIZE;
-            int y = grid_number / SIZE;
+            int x = grid_number % size_;
+            int y = grid_number / size_;
 
             if(gameboard_->get_gridspace(x, y) == EMPTY)
             {
                 gridspace->setEnabled(true);
+            }
+            if(gameboard_->get_gridspace(x, y) == ZERO)
+            {
+                gridspace->setIcon(CIRCLE);
+            }
+            if(gameboard_->get_gridspace(x, y) == ONE)
+            {
+                gridspace->setIcon(CROSS);
             }
 
             grid_number++;
@@ -469,6 +531,45 @@ QString MainWindow::get_time()
     return minutes + ":" + seconds;
 }
 
+void MainWindow::set_board_size()
+{
+    if(board_size_dropdown_->currentText() == "6x6")
+    {
+        size_ = 6;
+    }
+    if(board_size_dropdown_->currentText() == "8x8")
+    {
+        size_ = 8;
+    }
+    if(board_size_dropdown_->currentText() == "10x10")
+    {
+        size_ = 10;
+    }
+    if(board_size_dropdown_->currentText() == "12x12")
+    {
+        size_ = 12;
+    }
+    if(board_size_dropdown_->currentText() == "14x14")
+    {
+        size_ = 14;
+    }
+    if(board_size_dropdown_->currentText() == "16x16")
+    {
+        size_ = 16;
+    }
+    if(board_size_dropdown_->currentText() == "18x18")
+    {
+        size_ = 18;
+    }
+    if(board_size_dropdown_->currentText() == "20x20")
+    {
+        size_ = 20;
+    }
+
+    gameboard_->set_size(size_);
+    reset_board();
+}
+
 void MainWindow::setup_board()
 {
     int gridnumber = 0;
@@ -476,8 +577,8 @@ void MainWindow::setup_board()
     // Update the entire gameboard grid UI by reading the set up GameBoard object
     for(QPushButton* gridspace : gridspaces_)
     {
-        int column = gridnumber % SIZE;
-        int row = gridnumber / SIZE;
+        int column = gridnumber % size_;
+        int row = gridnumber / size_;
         gridspace->setStyleSheet("border: 1px solid #888888;");
 
         switch(gameboard_->get_gridspace(column, row))
@@ -610,6 +711,8 @@ void MainWindow::end_game()
         manual_input_button_->setEnabled(true);
         seed_input_field_->clear();
         seed_input_field_->setPlaceholderText("Select setup method");
+        board_size_dropdown_->setEnabled(true);
+        board_size_dropdown_->setStyleSheet("color: white; border: 1px solid white;");
 
         seconds_ = 0;
         timer_display_->setText("00:00");
