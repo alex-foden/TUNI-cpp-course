@@ -6,7 +6,7 @@
         <file>Resources/circle.png</file>
         <file>Resources/circlered.png</file>
         <file>Resources/circlegreen.png</file>
-        <file>Resources/circlegray.png</file>
         <file>Resources/crossgray.png</file>
+        <file>Resources/circlegray.png</file>
     </qresource>
 </RCC>

@@ -1,5 +1,6 @@
 #include "mainwindow.hh"
 #include "ui_mainwindow.h"
+#include <iostream>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -12,15 +13,18 @@ MainWindow::MainWindow(QWidget *parent)
     // Default size of the board
     size_ = 6;
 
-    // Symbols used in the gameboard grid UI. Colors are self explanatory.
+    points_ = 0;
+    multiplier_ = 20;
+
+    // Symbols used in the gameboard grid UI.
     CIRCLE = QPixmap(":/Resources/circle.png"); // symbol == '0'
-    CIRCLE_GRAY = QPixmap(":/Resources/circlegray.png"); // paused
     CIRCLE_GREEN = QPixmap(":/Resources/circlegreen.png"); // correct
     CIRCLE_RED = QPixmap(":/Resources/circlered.png"); // incorrect
+    CIRCLE_GRAY = QPixmap(":/Resources/circlegray.png"); // paused
     CROSS = QPixmap(":/Resources/cross.png"); // symbol == '1'
-    CROSS_GRAY = QPixmap(":/Resources/crossgray.png"); // paused
     CROSS_GREEN = QPixmap(":/Resources/crossgreen.png"); // correct
     CROSS_RED = QPixmap(":/Resources/crossred.png"); // incorrect
+    CROSS_GRAY = QPixmap(":/Resources/crossgray.png"); // paused
 
     // Font used for most buttons.
     button_font_.setPixelSize(32);
@@ -36,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
     init_symbol_button();
     init_gameboard_setup_menu();
     init_timer();
+    init_points_menu();
     init_reset_button();
     init_pause_button();
     init_close_button();
@@ -100,13 +105,13 @@ void MainWindow::init_symbol_button()
 void MainWindow::init_gameboard_setup_menu()
 {
     // Creating the title/header for the setup menu.
-    QLabel* board_setup_label = new QLabel("SETUP GAMEBOARD TO START GAME", this);
-    board_setup_label->setGeometry(BOARD_SIZE + 2*BOARD_MARGIN + RIGHT_MARGIN,
+    board_setup_label_ = new QLabel("SETUP GAMEBOARD TO START GAME", this);
+    board_setup_label_->setGeometry(BOARD_SIZE + 2*BOARD_MARGIN + RIGHT_MARGIN,
                                    BOARD_MARGIN + TOP_MARGIN, SETUP_MENU_WIDTH, DEFAULT_LABEL_HEIGHT);
-    board_setup_label->setAlignment(Qt::AlignCenter);
+    board_setup_label_->setAlignment(Qt::AlignCenter);
 
-    QLabel* board_size_label = new QLabel("Set size of the board", this);
-    board_size_label->setGeometry(BOARD_SIZE + 2*BOARD_MARGIN + RIGHT_MARGIN,
+    board_size_label_ = new QLabel("Set size of the board", this);
+    board_size_label_->setGeometry(BOARD_SIZE + 2*BOARD_MARGIN + RIGHT_MARGIN,
                                   BOARD_MARGIN + TOP_MARGIN + DEFAULT_LABEL_HEIGHT + LABEL_MARGIN,
                                   SETUP_MENU_WIDTH/2, DEFAULT_LABEL_HEIGHT);
     board_size_dropdown_ = new QComboBox(this);
@@ -126,10 +131,10 @@ void MainWindow::init_gameboard_setup_menu()
             this, &MainWindow::set_board_size);
 
     // Creating the label for the randomize QRadioButton.
-    QLabel* randomize_label = new QLabel("Randomize", this);
-    randomize_label->setGeometry(BOARD_SIZE + 2*BOARD_MARGIN + RIGHT_MARGIN + SETUP_MENU_WIDTH/4 - DEFAULT_LABEL_WIDTH/2,
+    randomize_label_ = new QLabel("Randomize", this);
+    randomize_label_->setGeometry(BOARD_SIZE + 2*BOARD_MARGIN + RIGHT_MARGIN + SETUP_MENU_WIDTH/4 - DEFAULT_LABEL_WIDTH/2,
                                  BOARD_MARGIN + TOP_MARGIN + 2*DEFAULT_LABEL_HEIGHT + 2*LABEL_MARGIN, DEFAULT_LABEL_WIDTH, DEFAULT_LABEL_HEIGHT);
-    randomize_label->setAlignment(Qt::AlignCenter);
+    randomize_label_->setAlignment(Qt::AlignCenter);
     // Creating the randomize radio button. On click, calls handle_board_setup_tooltip()
     randomize_button_ = new QRadioButton(this);
     randomize_button_->setGeometry(BOARD_SIZE + 2*BOARD_MARGIN + RIGHT_MARGIN + SETUP_MENU_WIDTH/4 - RADIO_BUTTON_SIZE/2,
@@ -139,10 +144,10 @@ void MainWindow::init_gameboard_setup_menu()
             this, &MainWindow::handle_board_setup_tooltip);
 
     // Creating the label for the manual input QRadioButton
-    QLabel* manual_input_label = new QLabel("Manual input", this);
-    manual_input_label->setGeometry(BOARD_SIZE + 2*BOARD_MARGIN + RIGHT_MARGIN + 3*SETUP_MENU_WIDTH/4 - DEFAULT_LABEL_WIDTH/2,
+    manual_input_label_ = new QLabel("Manual input", this);
+    manual_input_label_->setGeometry(BOARD_SIZE + 2*BOARD_MARGIN + RIGHT_MARGIN + 3*SETUP_MENU_WIDTH/4 - DEFAULT_LABEL_WIDTH/2,
                                     BOARD_MARGIN + TOP_MARGIN + 2*DEFAULT_LABEL_HEIGHT + 2*LABEL_MARGIN, DEFAULT_LABEL_WIDTH, DEFAULT_LABEL_HEIGHT);
-    manual_input_label->setAlignment(Qt::AlignCenter);
+    manual_input_label_->setAlignment(Qt::AlignCenter);
     // Creating the manual input QRadioButton. On click, call handle_board_setup_tooltip().
     manual_input_button_ = new QRadioButton(this);
     manual_input_button_->setGeometry(BOARD_SIZE + 2*BOARD_MARGIN + RIGHT_MARGIN + 3*SETUP_MENU_WIDTH/4 - RADIO_BUTTON_SIZE/2,
@@ -190,6 +195,19 @@ void MainWindow::init_timer()
     connect(timer_, &QTimer::timeout, this, &MainWindow::handle_timer_timeout);
 }
 
+void MainWindow::init_points_menu()
+{
+    points_label_ = new QLabel("Points: 0", this);
+    points_label_->setGeometry(2*BOARD_MARGIN + BOARD_SIZE + RIGHT_MARGIN,
+                               BOARD_MARGIN + BOARD_SIZE/2 - DEFAULT_LABEL_HEIGHT/2,
+                               DEFAULT_LABEL_WIDTH, DEFAULT_LABEL_HEIGHT);
+
+    multiplier_label_ = new QLabel("Multiplier: 20x", this);
+    multiplier_label_->setGeometry(2*BOARD_MARGIN + BOARD_SIZE + RIGHT_MARGIN,
+                                   BOARD_MARGIN + BOARD_SIZE/2 + DEFAULT_LABEL_HEIGHT/2,
+                                   DEFAULT_LABEL_WIDTH, DEFAULT_BUTTON_HEIGHT);
+}
+
 void MainWindow::init_reset_button()
 {
     // Create the reset button. Resets the timer and clears the board of symbols. Disabled until user starts the game.
@@ -234,7 +252,7 @@ void MainWindow::handle_gameboard_clicks()
 {
     int grid_number = 0;
 
-    // Iterate through gridspaces vector to find the gridspace user clicked.
+    // Iterate through gridspaces vector to find the coordinates of the gridspace user clicked.
     for(QPushButton* gridspace: gridspaces_)
     {
         int x = grid_number % size_;
@@ -293,14 +311,16 @@ void MainWindow::handle_setup_board_button_clicks()
 {
     if(randomize_button_->isChecked())
     {
-        int seed = 0;
-        while(true)
-        {
+        int seed = seed_input_field_->text().toInt();
 
-        // Check if seed is valid. Also fill the GameBoard objects board.
+        // Check if seed is valid. Fill the GameBoard board if seed is valid.
         if(gameboard_->fill_randomly(seed))
         {
             // Disable the setup menu
+            board_setup_label_->setStyleSheet("color: #444444;");
+            board_size_label_->setStyleSheet("color: #444444;");
+            randomize_label_->setStyleSheet("color: #444444;");
+            manual_input_label_->setStyleSheet("color: #444444;");
             setup_board_button_->setEnabled(false);
             seed_input_field_->setEnabled(false);
             seed_input_field_->clear();
@@ -340,8 +360,6 @@ void MainWindow::handle_setup_board_button_clicks()
         {
             seed_input_field_->clear();
             seed_input_field_->setPlaceholderText("Bad seed");
-            seed++;
-        }
         }
 
         return;
@@ -352,10 +370,14 @@ void MainWindow::handle_setup_board_button_clicks()
     {
         std::string input = seed_input_field_->text().toStdString();
 
-        // Check if user inputted the board correctly. Also fill the GameBoard objects board.
+        // Check if user inputted the board correctly. Fill the GameBoard board if input is valid.
         if(gameboard_->fill_from_input(input))
         {
             // Disable the setup menu
+            board_setup_label_->setStyleSheet("color: #444444;");
+            board_size_label_->setStyleSheet("color: #444444;");
+            randomize_label_->setStyleSheet("color: #444444;");
+            manual_input_label_->setStyleSheet("color: #444444;");
             setup_board_button_->setEnabled(false);
             seed_input_field_->setEnabled(false);
             seed_input_field_->clear();
@@ -406,6 +428,11 @@ void MainWindow::handle_timer_timeout()
     seconds_++;
     QString time = get_time();
     timer_display_->setText(time);
+
+    if(seconds_ % 15 == 0 and multiplier_ > 1)
+    {
+        decrease_multiplier();
+    }
 }
 
 void MainWindow::handle_reset_button_clicks()
@@ -424,7 +451,16 @@ void MainWindow::handle_reset_button_clicks()
     timer_display_->setStyleSheet("color: #444444; border: 1px solid #333333;");
     is_game_paused_ = true; // Game is now paused
 
+    points_ = 0;
+    points_label_->setText("Points: 0");
+    multiplier_ = 20;
+    multiplier_label_->setText("Multiplier: 20x");
+
     // Enable the setup menu
+    board_setup_label_->setStyleSheet("color: white;");
+    board_size_label_->setStyleSheet("color: white;");
+    randomize_label_->setStyleSheet("color: white;");
+    manual_input_label_->setStyleSheet("color: white;");
     randomize_button_->setEnabled(true);
     manual_input_button_->setEnabled(true);
     seed_input_field_->setPlaceholderText("Select setup method");
@@ -450,7 +486,6 @@ void MainWindow::handle_pause_button_clicks()
         for(QPushButton* gridspace: gridspaces_)
         {
             gridspace->setEnabled(false);
-            gridspace->setStyleSheet("border: 1px solid #333333;");
             int x = grid_number % size_;
             int y = grid_number / size_;
 
@@ -458,9 +493,24 @@ void MainWindow::handle_pause_button_clicks()
             {
                 gridspace->setIcon(CIRCLE_GRAY);
             }
-            if(gameboard_->get_gridspace(x, y) == ONE)
+            else if(gameboard_->get_gridspace(x, y) == ONE)
             {
                 gridspace->setIcon(CROSS_GRAY);
+            }
+            else
+            {
+                // Clear incorrect inputs
+                gridspace->setIcon(QIcon());
+
+            }
+
+            if(gameboard_->row_completed(y) or gameboard_->column_completed(x))
+            {
+                gridspace->setStyleSheet("border: 1px solid #006600;");
+            }
+            else
+            {
+                gridspace->setStyleSheet("border: 1px solid #333333;");
             }
 
             grid_number++;
@@ -478,25 +528,41 @@ void MainWindow::handle_pause_button_clicks()
         timer_display_->setStyleSheet("color: white; border: 1px solid white;");
         int grid_number = 0;
 
-        // Enable all EMPTY gridspaces
+        // Enable the gameboard grid UI
         for(QPushButton* gridspace: gridspaces_)
         {
-            gridspace->setStyleSheet("border: 1px solid #888888;");
+            gridspace->setEnabled(true);
             int x = grid_number % size_;
             int y = grid_number / size_;
 
-            if(gameboard_->get_gridspace(x, y) == EMPTY)
+            if(gameboard_->row_completed(y) or gameboard_->column_completed(x))
             {
-                gridspace->setEnabled(true);
+                gridspace->setStyleSheet("border: 1px solid #00FF00;");
+
+                if(gameboard_->get_gridspace(x, y) == ZERO)
+                {
+                    gridspace->setIcon(CIRCLE_GREEN);
+                }
+                if(gameboard_->get_gridspace(x, y) == ONE)
+                {
+                    gridspace->setIcon(CROSS_GREEN);
+                }
+
             }
-            if(gameboard_->get_gridspace(x, y) == ZERO)
+            else
             {
-                gridspace->setIcon(CIRCLE);
+                gridspace->setStyleSheet("border: 1px solid #888888;");
+
+                if(gameboard_->get_gridspace(x, y) == ZERO)
+                {
+                    gridspace->setIcon(CIRCLE);
+                }
+                if(gameboard_->get_gridspace(x, y) == ONE)
+                {
+                    gridspace->setIcon(CROSS);
+                }
             }
-            if(gameboard_->get_gridspace(x, y) == ONE)
-            {
-                gridspace->setIcon(CROSS);
-            }
+
 
             grid_number++;
         }
@@ -514,7 +580,7 @@ void MainWindow::handle_close_button_clicks()
 
 QString MainWindow::get_time()
 {
-    // Format the seconds into mm:ss format f.ex. [04:13]
+    // Format seconds_ into mm:ss format f.ex. [04:13]
     QString minutes = QString::number(seconds_ / 60);
     QString seconds = QString::number(seconds_ % 60);
 
@@ -531,41 +597,26 @@ QString MainWindow::get_time()
     return minutes + ":" + seconds;
 }
 
+void MainWindow::update_points()
+{
+    // Get the current points and update the label
+    points_ = gameboard_->get_points();
+    points_label_->setText("Points: " + QString::number(points_));
+}
+
+void MainWindow::decrease_multiplier()
+{
+    // Decrease the multiplier and update the multiplier label
+    gameboard_->decrease_multiplier();
+    multiplier_--;
+    QString multiplier = QString::number(multiplier_);
+    multiplier_label_->setText("Multiplier: " + multiplier + "x");
+}
+
 void MainWindow::set_board_size()
 {
-    if(board_size_dropdown_->currentText() == "6x6")
-    {
-        size_ = 6;
-    }
-    if(board_size_dropdown_->currentText() == "8x8")
-    {
-        size_ = 8;
-    }
-    if(board_size_dropdown_->currentText() == "10x10")
-    {
-        size_ = 10;
-    }
-    if(board_size_dropdown_->currentText() == "12x12")
-    {
-        size_ = 12;
-    }
-    if(board_size_dropdown_->currentText() == "14x14")
-    {
-        size_ = 14;
-    }
-    if(board_size_dropdown_->currentText() == "16x16")
-    {
-        size_ = 16;
-    }
-    if(board_size_dropdown_->currentText() == "18x18")
-    {
-        size_ = 18;
-    }
-    if(board_size_dropdown_->currentText() == "20x20")
-    {
-        size_ = 20;
-    }
-
+    // Get the board size user chose. set board size to size_
+    size_ = board_size_dropdown_->currentText().split("x").at(0).toInt();
     gameboard_->set_size(size_);
     reset_board();
 }
@@ -574,28 +625,26 @@ void MainWindow::setup_board()
 {
     int gridnumber = 0;
 
-    // Update the entire gameboard grid UI by reading the set up GameBoard object
+    // Update the entire gameboard grid UI by reading the GameBoard board
     for(QPushButton* gridspace : gridspaces_)
     {
         int column = gridnumber % size_;
         int row = gridnumber / size_;
         gridspace->setStyleSheet("border: 1px solid #888888;");
+        gridspace->setEnabled(true);
 
         switch(gameboard_->get_gridspace(column, row))
         {
-        // Disable the gridspaces that are already filled
+            // Disable the gridspaces that are already filled
             case ZERO:
                 gridspace->setIcon(CIRCLE);
-                gridspace->setEnabled(false);
                 break;
 
             case ONE:
                 gridspace->setIcon(CROSS);
-                gridspace->setEnabled(false);
                 break;
-        // Enable the EMPTY gridspaces
+            // Enable the EMPTY gridspaces
             default:
-                gridspace->setEnabled(true);
                 break;
         }
 
@@ -610,6 +659,12 @@ void MainWindow::setup_board()
 
 void MainWindow::update_board(QPushButton* gridspace, int x, int y)
 {
+    // Check if the gridspace the user clicked was empty
+    if(gameboard_->get_gridspace(x, y) != EMPTY)
+    {
+        return;
+    }
+
     // Check if symbol could be added
     if(gameboard_->add_symbol(x, y, symbol_)) // true = symbol has been added to GameBoard obejct
     {
@@ -622,13 +677,15 @@ void MainWindow::update_board(QPushButton* gridspace, int x, int y)
         {
             gridspace->setIcon(CROSS);
         }
-
-        // Disable the now filled button
-        gridspace->setEnabled(false);
-        gridspace->setStyleSheet("border: 1px solid #888888");
+        // Gridspace is now filled in GameBoard board. User cannot change the input.
     }
     else // false = symbol was invalid and not been added to GameBoard object
     {
+        if(multiplier_ > 1)
+        {
+        decrease_multiplier();
+        }
+
         // Update the gameboard grid UI to reflect the user's mistake. (gridspace goes red)
         if(symbol_ == '0')
         {
@@ -639,11 +696,51 @@ void MainWindow::update_board(QPushButton* gridspace, int x, int y)
             gridspace->setIcon(CROSS_RED);
         }
 
-        // Gridspace is NOT disabled. User can fix the mistake.
+        // Gridspace is NOT filled in GameBoard board. User can fix the mistake.
         gridspace->setStyleSheet("border: 1px solid #FF0000;");
     }
 
-    // If gameboard has been fully filled I.E user has won
+    // Check if the row is completed.
+    // If true; turn the row green and give user 10*multiplier points
+    if(gameboard_->row_completed(y))
+    {
+        for(unsigned int column = 0; column < size_; column++)
+        {
+            QPushButton* gridspace = gridspaces_.at(y * size_ + column);
+            gridspace->setStyleSheet("border: 1px solid #00FF00;");
+            if(gameboard_->get_gridspace(column, y) == ZERO)
+            {
+                gridspace->setIcon(CIRCLE_GREEN);
+            }
+            if(gameboard_->get_gridspace(column, y) == ONE)
+            {
+                gridspace->setIcon(CROSS_GREEN);
+            }
+        }
+        update_points();
+    }
+
+    // Check if the column is completed.
+    // If true; turn the column green and give user 10*multiplier points
+    if(gameboard_->column_completed(x))
+    {
+        for(unsigned int row = 0; row < size_; row++)
+        {
+            QPushButton* gridspace = gridspaces_.at(x + row * size_);
+            gridspace->setStyleSheet("border: 1px solid #00FF00;");
+            if(gameboard_->get_gridspace(x, row) == ZERO)
+            {
+                gridspace->setIcon(CIRCLE_GREEN);
+            }
+            if(gameboard_->get_gridspace(x, row) == ONE)
+            {
+                gridspace->setIcon(CROSS_GREEN);
+            }
+        }
+        update_points();
+    }
+
+    // Check if gameboard has been fully filled I.E user has won
     if(gameboard_->is_game_over())
     {
         end_game();
@@ -669,6 +766,7 @@ void MainWindow::end_game()
     reset_button_->setStyleSheet("color: #00FF00; border: 1px solid #00FF00");
     close_button_->setStyleSheet("color: #00FF00; border: 1px solid #00FF00");
     symbol_button_->setStyleSheet("color: #00FF00; border: 1px solid #00FF00");
+
     if(symbol_ == '0')
     {
         symbol_button_->setIcon(CIRCLE_GREEN);
@@ -678,18 +776,20 @@ void MainWindow::end_game()
         symbol_button_->setIcon(CROSS_GREEN);
     }
 
-    // Create pop-up that shows the user the time it took to win and ask the user to quit or continue playing
+    // Create pop-up that shows the user the time it took to win and the points they got.
+    // Ask the user to quit or continue playing.
     QString time = get_time();
+    QString points = QString::number(points_);
     int messageBoxResult = 0;
     messageBoxResult = QMessageBox::question(0,
                                              "You won in " + time + "!",
-                                             "Continue playing?",
+                                             "Points: " + points + "\nContinue playing?",
                                              QMessageBox::Yes,
                                              QMessageBox::No);
 
+    // If the user choose to continue playing, reset the UI.
     if(messageBoxResult == QMessageBox::Yes)
     {
-        // Reset
         this->setStyleSheet("color: white; background-color: black;");
 
         pause_button_->setEnabled(false);
@@ -707,6 +807,10 @@ void MainWindow::end_game()
             symbol_button_->setIcon(CROSS);
         }
 
+        board_setup_label_->setStyleSheet("color: white;");
+        board_size_label_->setStyleSheet("color: white;");
+        randomize_label_->setStyleSheet("color: white;");
+        manual_input_label_->setStyleSheet("color: white;");
         randomize_button_->setEnabled(true);
         manual_input_button_->setEnabled(true);
         seed_input_field_->clear();
@@ -718,8 +822,14 @@ void MainWindow::end_game()
         timer_display_->setText("00:00");
         timer_display_->setStyleSheet("color: #444444; border: 1px solid #333333");
 
+        points_ = 0;
+        points_label_->setText("Points: 0");
+        multiplier_ = 20;
+        multiplier_label_->setText("Multiplier: 20x");
+
         reset_board();
     }
+    // If user quits, close the window
     else
     {
         this->close();

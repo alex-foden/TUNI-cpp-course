@@ -48,12 +48,12 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    GameBoard* gameboard_; // contains the vector and methods for the game to work
+    GameBoard* gameboard_; // contains the board vector and methods for the game to work
 
-    // shows the state of the game in the ui and allows the user to interact with game through the ui
+    // shows the state of the game and allows the user to interact with game through the ui
     QGridLayout* gameboard_grid_;
     std::vector<QPushButton*> gridspaces_; // pointers to every gridspace in the gameboard
-    unsigned int size_;
+    unsigned int size_; // the size of the gameboard. (gameboard is a size_ * size_ grid)
 
     // Symbols used in gameboard.
     QPixmap CIRCLE; // symbol = '0'
@@ -71,7 +71,11 @@ private:
     QPushButton* symbol_button_;
 
     // Board setup menu UI components
+    QLabel* board_setup_label_;
+    QLabel* board_size_label_;
+    QLabel* randomize_label_;
     QRadioButton* randomize_button_;
+    QLabel* manual_input_label_;
     QRadioButton* manual_input_button_;
     QLineEdit* seed_input_field_;
     QPushButton* setup_board_button_;
@@ -81,6 +85,12 @@ private:
     QLabel* timer_display_;
     QTimer* timer_;
     int seconds_;
+
+    // Points
+    int points_;
+    int multiplier_;
+    QLabel* points_label_;
+    QLabel* multiplier_label_;
 
     // Button for resetting the board during game
     QPushButton* reset_button_;
@@ -110,6 +120,9 @@ private:
     // Inits QTimer object, which updates the timer_display label every second
     // On timeout (every second game is not paused), calls handle_timer_timeout
     void init_timer();
+
+    // Inits points and multiplier labels.
+    void init_points_menu();
 
     // Inits reset button. on click, calls handle_reset_button_clicks()
     void init_reset_button();
@@ -153,9 +166,15 @@ private:
     // Closes the window
     void handle_close_button_clicks();
 
-    // Takes the current time used and formats it into standard mm:ss format (f.ex 02:43).
+    // Takes the current time used and formats it into standard mm:ss format (f.ex 04:13).
     // Returns the current time used in the game as a QString.
     QString get_time();
+
+    // Increases the points by 10 * multiplier. Updates the points label to reflect that.
+    void update_points();
+
+    // Decreases multiplier by 1. Updates the multiplier label to reflet that.
+    void decrease_multiplier();
 
     // Sets the size of the gameboard
     void set_board_size();

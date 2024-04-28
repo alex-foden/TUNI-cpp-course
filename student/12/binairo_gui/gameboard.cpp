@@ -6,6 +6,8 @@ GameBoard::GameBoard()
 {
     number_of_symbols_ = 3;
     size_ = 2 * number_of_symbols_;
+    points_ = 0;
+    multiplier_ = 20;
     init();
 }
 
@@ -129,11 +131,46 @@ bool GameBoard::ok_amount_of_symbols() const
     return true;
 }
 
+bool GameBoard::row_completed(unsigned int row)
+{
+    for(unsigned int column = 0; column < size_; column++)
+    {
+        if(board_.at(row).at(column) == EMPTY)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool GameBoard::column_completed(unsigned int column)
+{
+    for(unsigned int row = 0; row < size_; row++)
+    {
+        if(board_.at(row).at(column) == EMPTY)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void GameBoard::decrease_multiplier()
+{
+    if(multiplier_ == 1)
+    {
+        return;
+    }
+
+    multiplier_--;
+}
+
 bool GameBoard::add_symbol(unsigned int x, unsigned int y, char symbol_char)
 {
     if(board_.at(y).at(x) != EMPTY)
     {
-        //std::cout << "Not empty: ";
         return false;
     }
 
@@ -150,6 +187,14 @@ bool GameBoard::add_symbol(unsigned int x, unsigned int y, char symbol_char)
     if(ok_adjacent_symbols() and
        ok_amount_of_symbols())
     {
+        if(row_completed(y))
+        {
+            points_ += 10 * multiplier_;
+        }
+        if(column_completed(x))
+        {
+            points_ += 10 * multiplier_;
+        }
         return true;
     }
     // If all was not fine after adding, making the index empty again
@@ -227,6 +272,11 @@ void GameBoard::clear_board()
     init();
 }
 
+int GameBoard::get_points()
+{
+    return points_;
+}
+
 void GameBoard::init()
 {
     std::vector<Element_type> row(size_, EMPTY);
@@ -234,6 +284,8 @@ void GameBoard::init()
     {
         board_.push_back(row);
     }
+    points_ = 0;
+    multiplier_ = 20;
 }
 
 void GameBoard::print_line(unsigned int length, char fill_character) const

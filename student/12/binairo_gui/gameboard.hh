@@ -50,10 +50,19 @@ public:
     // If this is the case, returns true, otherwise returns false.
     bool ok_amount_of_symbols() const;
 
+    // Checks if row/column is filled.
+    bool row_completed(unsigned int row);
+    bool column_completed(unsigned int column);
+
+    // Decreases multiplier_ by 1
+    void decrease_multiplier();
+
     // Adds the given symbol in the given coordinates of the gameboard.
     // However, this is done only if both has_permissible_adjacent_symbols
     // and has_permissible_amount_of_symbols return true.
     // Returns true, if adding was done, otherwise returns false.
+    // Increases points_ by 10*multiplier if row/column was filled.
+    // Decreases multiplier by 1 if input was invalid
     bool add_symbol(unsigned int x, unsigned int y, char symbol_char);
 
     // Returns true, if the game is over, i.e. if there are no EMPTYs in the
@@ -68,6 +77,9 @@ public:
 
     // Clears the board
     void clear_board();
+
+    // returns points
+    int get_points();
 
 private:
     // Inits the gameboard, i.e. fills it with EMPTYs.
@@ -92,6 +104,11 @@ private:
 
     unsigned int number_of_symbols_; // Max amount of each symbol in row/column
     unsigned int size_; // Size of gameboard (2 * number_of_symbols)
+
+    // Points. add 10 * multiplier every completed row/column
+    int points_;
+    // points multiplier. starts at 20 and decreases by 1 every 15 seconds/every mistake
+    int multiplier_;
 
     // Ratkaisemattoman pelilaudan tuottavat siemenluvut väliltä [1..50].
     // A list of seed values from [1..50] that produce non-solvable gameboard.
