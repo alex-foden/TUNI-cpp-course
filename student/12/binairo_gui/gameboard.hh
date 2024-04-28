@@ -1,3 +1,23 @@
+/* Class GameBoard
+ * ----------
+ * COMP.CS.110 SPRING 2024
+ * ----------
+ * Edited by:
+ * Name: Alex Foden
+ * Student number: 152492647
+ * Username: cxm844
+ * E-Mail: alex.foden@tuni.fi
+ *
+ * Class for game logic. Handles
+ * 1. Creating the gameboard
+ * 2. Setting up the board randomly/manually
+ * 3. Adding symbols to the board
+ * 4. Checking if the addition was legal
+ * 5. Keeping track of the points and the points multiplier
+ * 6. Ending the game
+ * 6. Clearing the board at the end of the game or upon reset
+ */
+
 #ifndef GAMEBOARD_HH
 #define GAMEBOARD_HH
 

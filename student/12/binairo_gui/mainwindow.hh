@@ -1,3 +1,25 @@
+/* Class MainWindow
+ * ----------
+ * COMP.CS.110 SPRING 2024
+ * ----------
+ * Author:
+ * Name: Alex Foden
+ * Student number: 152492647
+ * Username: cxm844
+ * E-Mail: alex.foden@tuni.fi
+ *
+ * Class for the UI. Contains:
+ * 1. A grid of QPushButtons for the gameboard
+ * 2. A setup menu which allows user to select the size of the board and a starting method
+ * 3. A Timer
+ * 4. A Reset, Pause and Close button
+ * 5. A Symbol Button, which allows the user to choose which symbol to add to the board
+ * 6. A points and points multiplier label
+ *
+ * Handles some "minor" points logic
+ * (decreases the points multiplier every 15 seconds of gametime)
+ */
+
 #ifndef MAINWINDOW_HH
 #define MAINWINDOW_HH
 

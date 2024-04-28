@@ -1,0 +1,69 @@
+PELIN SÄÄNNÖT:
+1. Kullakin vaaka- ja pystyrivillä pitää olla sama määrä ristejä ja nollia.
+2. Kullakin vaaka- ja pystyrivillä saa olla peräkkäin korkeintaan kaksi samaa MERKKIÄ.
+
+
+KÄYTTÖLIITTYMÄ:
+1. PELILAUTA sijaitsee vasemmalla puolella ruutua. Pelilautaan lisätään MERKKEJÄ painamalla MERKKI
+nappulaa (keskimmäinen nappula niistä viidestä, jotka ovat PELILAUDAN alapuolella) ja painamalla
+yhtä ruudukon tyhjää ruutua. Jos lisäys ei ollut virheellinen, lisäystä ei voi muuttaa myöhemmin.
+Peli antaa pelaajan tehdä virheellisiä lisäyksiä, jotka osoitetaan käyttäjälle punaisellas.
+Virheelliset lisäykset vaikuttavat negatiivisesti pistelaskuun, mutta niitä voi korjata eli peliä voi
+jatkaa. PELILAUTAAN voi lisätä MERKKEJÄ vasta kun pelaaja on valinnut PELILAUDAN koon ja aloitustavan.
+
+2. SETUP MENU sijaitsee PELILAUDAN oikealla puolella. menusta pelaaja voi määrittää PELILAUDAN koon ja
+pelin aloitustavan. Pelaaja voi valita, haluaako hän täyttää PELILAUDAN satunnaisesti vai manuaalisesti
+ennen pelin alkua. Kun peli on aloitettu, SETUP MENU poistetaan käytöstä. SETUP MENU laitetaan takaisin
+käyttöön, kun pelaaja on painanut RESET nappulaa tai on voittanut pelin.
+
+3. Pelaajan PISTEET ja KERROIN näkyvät SETUP MENUN alapuolella. Kerroin määritsee, kuinka monta pistettä pelaaja
+pelaaja saa jokaisesta täytetystä rivistä ja sarakkeesta. Kun pelaaja voittaa pelin, pelaajalle
+näytetään hänen pelin aikana saamansa pisteet. Jokaisesta virheellisestä syötteestä tai joka
+15 sekuntia pelaaja on käyttänyt pelissä KERTOIMESTA vähennetään 1. KERROIN ei voi olla pienempi kuin 1.
+Pistelasku toimii näin:
+- joka täytetty rivi/sarake -> PISTEET = PISTEET + (10 * KERROIN)
+
+
+PELILAUDAN alapuollea on 5 käyttöliittymän komponenttia. Järjestyksessä vasemmasta oikeaan ne ovat:
+1. AJASTIN. Alkaa, kun pelaaja on asettanut PELILAUDAN ja painanut aloitus nappulaa. Kun pelaaja
+voittaa pelin, pelaajalle näytetään pelin voittamiseen käytetty aika.
+
+2. RESET nappula. Kun pelaaja painaa nappulaa, PELILAUTA sekä AJASTIN nollataan. RESET nappula on
+käytössä vain kun peli on käynnissä, eli ennen pelin aloitusta, RESET nappulan painamisen jälkeen tai
+voiton jälkeen RESET nappula ei ole käytössä.
+
+3. MERKKI nappula. Kun pelaaja painaa nappulaa, MERKKI vaihtuu NOLLASTA -> RISTIIN ja päinvastoin.
+Pelaaja valitsee näin, mitä MERKKIÄ hän on lisäämässä PELILAUTAAN. Nappula on aina käytössä.
+- Pelimerkit on toteutettu kuvina (Ympyrät/nollat ja ristit/X). Niillä on 4 väritilaa:
+    1. Valkoinen: normaalitila. MERKKI on valkoinen jos se ei ole jossain muussa tilassa.
+    2. Harmaa: Pelaaja on painanut PAUSE nappulaa.
+    3. Vihreä: MERKKI on osa täytettyä riviä/saraketta.
+    4. Punainen: MERKKI on osa virheellistä syötettä.
+
+4. PAUSE nappula. Kun pelaaja painaa nappulaa, peli pysäytetään. Tällöin AJASTIN pysäytetään ja
+PELILAUTA ei hyväksy mitään syötettä. (Pelin keskeyttäminen myös poistaa kaikki virheelliset syötteet)
+Keskeytyksen aikana PISTEKERROIN ei myöskään vähene.
+Jos pelaaja painaa nappulaa uudestaan, peli jatkuu normaalisti. Pelin voi keskeyttää vaan kun peli on
+käynnissä, eli ennen pelin aloitusta, RESET nappulan painamisen jälkeen tai voiton jälkeen
+PAUSE nappula ei ole käytössä.
+
+5. CLOSE nappula. Kun pelaaja painaa nappulaa, ikkuna suljetaan. Nappula on aina käytössä.
+
+
+Kun pelaaja on täyttänyt koko laudan eli hän on voittanut, Pelaajalle tulee popup, joka näyttää
+peliin käytetyn ajan ja pelaajan saamat pisteet.
+Pelaajalta sitten kysytään (1) jatkaako hän pelaamista vai (2) lopettaako hän pelin.
+(1) Käyttöliittymä resetoidaan ja pelaajalta pyydetään aloitustapa ja PELILAUDAN koko. Värit palautetaan
+ennalleen.
+(2) Ikkuna suljetaan.
+
+
+VÄRIT
+Kun pelaaja on täyttänyt rivin tai sarakkeen, kyseinen rivi/sarake muuttuu vihreäksi.
+
+Jos pelaaja tekee virheellisen lisäyksen, pelaajan painama ruutu muuttuu punaiseksi. Ruutu muuttuu
+takaisin normaaliksi (valkoiseksi) jos käyttäjä muuttaa hänen syötettä. Joskus käyttäjällä ei ole mitään
+sallittua syötettä, jolloin hänen pitää aloittaa alusta :(
+
+Kun pelaaja on täyttänyt koko laudan eli hän on voittanut, pelin tausta ja kaikki nappulat muuttuvat
+vihreiksi.
