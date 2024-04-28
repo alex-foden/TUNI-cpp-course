@@ -668,6 +668,8 @@ void MainWindow::update_board(QPushButton* gridspace, int x, int y)
     // Check if symbol could be added
     if(gameboard_->add_symbol(x, y, symbol_)) // true = symbol has been added to GameBoard obejct
     {
+        gridspace->setStyleSheet("border: 1px solid #888888");
+
         // Update the gameboard grid UI
         if(symbol_ == '0')
         {
